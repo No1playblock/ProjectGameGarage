@@ -17,6 +17,9 @@ ARoundManager::ARoundManager()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	roundtype = ERoundType::WatingTime;
+
+	waittime = 30;
+	fighttime = 60;
 	timer = 4;
 	roundcnt=1;
 }
@@ -74,12 +77,12 @@ void ARoundManager::timerStop()
 				break;
 		}
 		roundtype = ERoundType::PlayTime;
-		timer = 7;				//라운드 시간
+		timer = fighttime;				//라운드 시간
 	}
 	else
 	{
 		roundtype = ERoundType::WatingTime;
-		timer = 4;		//Waiting시간 만큼 타이머 설정
+		timer = waittime;		//Waiting시간 만큼 타이머 설정
 		spawnPosition=FVector(360.f, -10.f, 122.f);
 		roundcnt++;
 	}
@@ -166,21 +169,6 @@ void ARoundManager::BeginPlay()
 void ARoundManager::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	
-	/*ACharacter* player = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
-	if (player)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("player"));
-		UUserWidget* userwidget = Cast<APlayableCharacter>(player)->CrosshairWidgetInstance;
-		if (userwidget)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("userwidget"));
-		}
-		HUDWidget = Cast<UCrosshairWidget>(userwidget);
-		if (userwidget)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("HUDWidget"));
-		}
-	}*/
+
 }
 

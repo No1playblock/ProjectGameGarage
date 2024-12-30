@@ -29,7 +29,7 @@ public:
 	void timerStart();
 
 	UPROPERTY(Replicated)
-	int timer = 5;
+	int timer;
 
 	class UUserWidget* HUDWidget;
 
@@ -56,5 +56,10 @@ private:
 	ERoundType roundtype;
 	int roundcnt=0;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	int fighttime;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	int waittime;
 
 };
