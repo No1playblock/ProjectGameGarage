@@ -70,5 +70,19 @@ Saved/*
 Intermediate/*
 Plugins/**/Intermediate/*
 
+# Except the following files and folders
+!Config/
+!Source/
+!*.sln
+!*.uproject
+
+# Ignore everything inside Config and Source except files
+Config/*
+Source/*
+
+# Unignore files in Config and Source
+!Config/**
+!Source/**
+
 # Cache files for the editor to use
 DerivedDataCache/*
