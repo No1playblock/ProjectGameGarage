@@ -24,10 +24,9 @@ class PROJECT_GAMEGARAGE_API AMeleeWeaponActor : public AWeaponActor
 	virtual void PickUpWeapon(APlayableCharacter* PickUpCharacter) override;
 public:	
 	// Sets default values for this actor's properties
-	AMeleeWeaponActor();
 
-	UFUNCTION()
-	void OverlapmeleeComponent(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	UFUNCTION(BlueprintCallable)
+	UMeleeWeaponComponent* GetMeleeComponent();
 
 	UPROPERTY(EditAnyWhere, BlueprintReadWrite)	//충돌 한번만 확인하기 위해서
 	bool bisHit;
@@ -36,11 +35,11 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+	AMeleeWeaponActor();
 
-	UFUNCTION(BlueprintCallable)
-	UMeleeWeaponComponent* GetMeleeComponent();
+	UFUNCTION()
+	void OverlapmeleeComponent(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 };

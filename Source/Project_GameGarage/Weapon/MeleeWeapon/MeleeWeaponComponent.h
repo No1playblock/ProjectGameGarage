@@ -38,7 +38,8 @@ struct FComboAttack
 
 
 UCLASS(Blueprintable, BlueprintType, ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
-class PROJECT_GAMEGARAGE_API UMeleeWeaponComponent : public UStaticMeshComponent
+class PROJECT_GAMEGARAGE_API UMeleeWeaponComponent : 
+	UStaticMeshComponent
 {
 	GENERATED_BODY()
 	
@@ -75,13 +76,15 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	bool AttachWeapon(APlayableCharacter* TargetCharacter);
 
+	
+	
+protected:
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	float animSpeed;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	FTransform RelativeTransform;
-	
-protected:
 
 	UFUNCTION()
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;

@@ -17,12 +17,11 @@ class PROJECT_GAMEGARAGE_API ACustomizePlayerController : public AGGPlayerContro
 {
 	GENERATED_BODY()
 	
-public:
-    
-    virtual void BeginPlay() override;
 
 protected:
     
+    virtual void BeginPlay() override;
+
     ACustomizePlayerController();
 
     virtual void Tick(float DeltaSeconds) override;

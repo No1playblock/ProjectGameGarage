@@ -21,12 +21,9 @@ protected:
 	UPROPERTY(EditAnyWhere, BlueprintReadWrite, Category = "Appearance")
 	UMaterialInstance* EmoMaterial;
 
-	
-
-public:
 	virtual void NativeConstruct() override;
 
-	
+public:
 
 	virtual void SetClicked(bool bIsClicked) override;
 

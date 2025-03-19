@@ -10,15 +10,16 @@
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnButtonPressed, APressurePlate*, Button, bool, bIsPressed);
 
 UCLASS()
-class PROJECT_GAMEGARAGE_API APressurePlate : public AActor
+class PROJECT_GAMEGARAGE_API APressurePlate : 
+	AActor
 {
 	GENERATED_BODY()
-	
-public:	
-	// Sets default values for this actor's properties
-	APressurePlate();
+
 
 protected:
+
+	APressurePlate();
+
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 

@@ -14,11 +14,11 @@ class PROJECT_GAMEGARAGE_API UCharacterStatComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
-public:	
-	// Sets default values for this component's properties
-	UCharacterStatComponent();
 
 protected:
+
+	UCharacterStatComponent();
+
 	// Called when the game starts
 	virtual void BeginPlay() override;
 		

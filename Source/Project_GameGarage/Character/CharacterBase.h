@@ -15,11 +15,14 @@ class PROJECT_GAMEGARAGE_API ACharacterBase : public ACharacter, public ICharact
 
 public:
 	// Sets default values for this character's properties
-	ACharacterBase();
+	
 
 	UWidgetComponent* GetHPWidget();
 
 protected:
+
+	ACharacterBase();
+
 	virtual void PostInitializeComponents() override;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
