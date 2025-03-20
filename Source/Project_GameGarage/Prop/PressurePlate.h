@@ -10,8 +10,7 @@
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnButtonPressed, APressurePlate*, Button, bool, bIsPressed);
 
 UCLASS()
-class PROJECT_GAMEGARAGE_API APressurePlate : 
-	AActor
+class PROJECT_GAMEGARAGE_API APressurePlate : public AActor
 {
 	GENERATED_BODY()
 

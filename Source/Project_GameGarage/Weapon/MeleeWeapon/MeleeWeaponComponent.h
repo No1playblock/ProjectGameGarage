@@ -38,8 +38,7 @@ struct FComboAttack
 
 
 UCLASS(Blueprintable, BlueprintType, ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
-class PROJECT_GAMEGARAGE_API UMeleeWeaponComponent : 
-	UStaticMeshComponent
+class PROJECT_GAMEGARAGE_API UMeleeWeaponComponent : public	UStaticMeshComponent
 {
 	GENERATED_BODY()
 	
