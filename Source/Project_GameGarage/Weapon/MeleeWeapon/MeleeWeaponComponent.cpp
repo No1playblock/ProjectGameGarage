@@ -76,23 +76,17 @@ bool UMeleeWeaponComponent::AttachWeapon(APlayableCharacter* TargetCharacter)		/
 	return true;
 }
 
+
 void UMeleeWeaponComponent::PressComboCommand()
 {
 	if (CurrentCombo == 0)
 	{
-		float LocalStartTime = GetWorld()->GetGameState()->GetServerWorldTimeSeconds();
-		if (!(Character->HasAuthority()))		//클라면
-		{
-			ComboActionBegin();
-			Server_ComboActionBegin(LocalStartTime);  // 서버로 즉시 RPC 호출
-		}
-		else		//서버면
-		{
-			Multicast_ComboActionBegin();
-		}
+		bisCombo = true;
+		Server_ComboActionBegin();
+		
 		return;
 	}
-	if (!ComboTimerHandle.IsValid())		//타이머가 죽은 상태면 false	//안정성을 위해 추가
+	if (!bisCombo)		//콤보가 진행중인 상태면 bhas를 true로
 	{
 
 		if (Character->HasAuthority())
@@ -121,7 +115,16 @@ void UMeleeWeaponComponent::Server_RequestNextCombo_Implementation(bool bNextCom
 	// 상태를 모든 클라이언트에 전파
 }
 
-void UMeleeWeaponComponent::ComboActionBegin()
+
+void UMeleeWeaponComponent::Server_ComboActionBegin_Implementation()
+{
+	Multicast_PlayAnimation();
+
+	SetComboCheckTimer();
+}
+
+
+void UMeleeWeaponComponent::Multicast_PlayAnimation_Implementation()
 {
 	CurrentCombo = 1;
 	//Animation Setting
@@ -132,83 +135,25 @@ void UMeleeWeaponComponent::ComboActionBegin()
 	FOnMontageEnded EndDelegate;
 	EndDelegate.BindUObject(this, &UMeleeWeaponComponent::ComboActionEnded);
 	Animinstance->Montage_SetEndDelegate(EndDelegate, ComboActionMontage);
-
-	SetComboCheckTimer();
 }
 
-
-void UMeleeWeaponComponent::Server_ComboActionBegin_Implementation(float ClientRequestTime)
+void UMeleeWeaponComponent::Multicast_JumpToAnimation_Implementation()
 {
-	float ServerTime = GetWorld()->GetGameState()->GetServerWorldTimeSeconds();
-	float LagTime = FMath::Abs(ServerTime - ClientRequestTime);
+	UAnimInstance* AnimInstance = Character->GetMesh()->GetAnimInstance();
+	if (!AnimInstance) return;
 
-	ComboActionBegin();
-	Client_CorrectComboTimer(LagTime);
+	FName CurrentSection = FName(*FString::Printf(TEXT("%s%d"), *MontageSectionNamePrefix, CurrentCombo));
+	CurrentCombo = FMath::Clamp(CurrentCombo + 1, 1, MaxComboCount);
+	FName NextSection = FName(*FString::Printf(TEXT("%s%d"), *MontageSectionNamePrefix, CurrentCombo));
 
-}
-bool UMeleeWeaponComponent::Server_ComboActionBegin_Validate(float ComboActionStartTime)
-{
-	//if (LastComboActionStartTime == 0.0f)
-	//{
-	//	return true;
-	//}
-
-	//const float TimeSinceLastCombo = ComboActionStartTime - LastComboActionStartTime;
-	//if (CurrentCombo > 0)
-	//{
-	//	AttackTime = (EffectiveFrameCount[CurrentCombo - 1] / FrameRate) / 1.0f;
-	//}
-	//else
-	//{
-	//	AttackTime = (EffectiveFrameCount[0] / FrameRate) / 1.0f;
-	//}
-	//return TimeSinceLastCombo >= AttackTime;
-	return true;
-}
-
-
-
-void UMeleeWeaponComponent::Multicast_ComboActionBegin_Implementation()
-{
-	ComboActionBegin();
-}
-
-void UMeleeWeaponComponent::Client_CorrectComboTimer_Implementation(float LagTime)
-{
-	if (!Character->IsLocallyControlled())
-		return;  // 클라이언트만 처리
-
-	if (!ComboTimerHandle.IsValid())
-	{
-		GG_LOG(LogGGNetwork, Log, TEXT("ComboTimerNot Valid"));
-		return;
-	}
-
-	int32 ComboIndex;
-
-	if (CurrentCombo == 0)
-	{
-		ComboIndex = 0;
-	}
-	else
-		ComboIndex = CurrentCombo - 1;
-
-	float OriginalComboEffectiveTime = (EffectiveFrameCount[ComboIndex] / FrameRate);
-
-	// 이미 흐른 시간(LagTime)을 고려한 새 타이머 값
-	float AdjustedComboEffectiveTime = FMath::Max(0.f, OriginalComboEffectiveTime + LagTime);
-
-	// 기존 타이머 초기화 후 보정된 타이머 재설정
-	GetWorld()->GetTimerManager().ClearTimer(ComboTimerHandle);
-
-	GetWorld()->GetTimerManager().SetTimer(ComboTimerHandle, this, &UMeleeWeaponComponent::ComboCheck, AdjustedComboEffectiveTime, false);
-
+	AnimInstance->Montage_JumpToSection(NextSection, ComboActionMontage);
 }
 
 void UMeleeWeaponComponent::ComboActionEnded(UAnimMontage* TargetMontage, bool IsProperlyEnded)
 {
-	ensure(CurrentCombo != 0);
+	
 	CurrentCombo = 0;
+	bisCombo = false;
 
 }
 void UMeleeWeaponComponent::SetComboCheckTimer()
@@ -225,16 +170,10 @@ void UMeleeWeaponComponent::SetComboCheckTimer()
 	const float AttackSpeedRate = 1.0f;
 	float ComboEffectiveTime = (EffectiveFrameCount[ComboIndex] / FrameRate) / AttackSpeedRate;
 
+	//GG_LOG(LogGGNetwork, Warning, TEXT("Time: %f"), GetWorld()->GetGameState()->GetServerWorldTimeSeconds());
 	if (ComboEffectiveTime > 0.0f)
 	{
-		if (!Character->IsLocallyControlled())		//프록시
-		{
-			GetWorld()->GetTimerManager().SetTimer(ComboTimerHandle, this, &UMeleeWeaponComponent::ComboCheck, ComboEffectiveTime, false);
-		}
-		else		//서버면 늦게
-		{
-			GetWorld()->GetTimerManager().SetTimer(ComboTimerHandle, this, &UMeleeWeaponComponent::ComboCheck, ComboEffectiveTime + ServerDifferenceTime, false);
-		}
+		GetWorld()->GetTimerManager().SetTimer(ComboTimerHandle, this, &UMeleeWeaponComponent::ComboCheck, ComboEffectiveTime, false);
 	}
 }
 
@@ -242,17 +181,12 @@ void UMeleeWeaponComponent::SetComboCheckTimer()
 void UMeleeWeaponComponent::ComboCheck()
 {
 
+	GG_LOG(LogGGNetwork, Warning, TEXT("COmboCheck Time: %f"), GetWorld()->GetGameState()->GetServerWorldTimeSeconds());
 	if (bHasNextComboCommand)
 	{
-		UAnimInstance* AnimInstance = Character->GetMesh()->GetAnimInstance();
-		if (!AnimInstance) return;
+		Multicast_JumpToAnimation();
 
-		FName CurrentSection = FName(*FString::Printf(TEXT("%s%d"), *MontageSectionNamePrefix, CurrentCombo));
-		CurrentCombo = FMath::Clamp(CurrentCombo + 1, 1, MaxComboCount);
-		FName NextSection = FName(*FString::Printf(TEXT("%s%d"), *MontageSectionNamePrefix, CurrentCombo));
-
-		AnimInstance->Montage_JumpToSection(NextSection, ComboActionMontage);
-
+		GG_LOG(LogGGNetwork, Warning, TEXT("Play ANimation"));
 		SetComboCheckTimer();
 
 		if (!Character->HasAuthority())

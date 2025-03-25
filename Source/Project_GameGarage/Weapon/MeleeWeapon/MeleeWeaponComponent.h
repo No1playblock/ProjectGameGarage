@@ -48,12 +48,6 @@ private:
 
 	APlayableCharacter* Character;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay, meta = (AllowPrivateAccess = "true"))
-	USoundBase* SwingSound;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay, meta = (AllowPrivateAccess = "true"))
-	UAnimMontage* SwingAnimation;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation", meta = (AllowPrivateAccess = "true"))
 	class UAnimSequence* IdleAnimation;
 
@@ -101,31 +95,28 @@ protected:
 
 	void PressComboCommand();
 
-	void ComboActionBegin();
-
-	UFUNCTION(Server, Reliable, WithValidation)
-	void Server_ComboActionBegin(float ComboActionStartTime);
-
-	UFUNCTION(NetMulticast, Reliable)
-	void Multicast_ComboActionBegin();
+	UFUNCTION(Server, Reliable)
+	void Server_ComboActionBegin();
 
 
 	UFUNCTION(Server, Reliable)
 	void Server_RequestNextCombo(bool bNextCombo);
 
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_PlayAnimation();
 
-	UFUNCTION(Client, Reliable)
-	void Client_CorrectComboTimer(float LagTime);
+
+	bool bisCombo;
+
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_JumpToAnimation();
+
 
 	void ComboActionEnded(UAnimMontage* TargetMontage, bool IsProperlyEnded);
 
 	void SetComboCheckTimer();
 
 	void ComboCheck();
-
-	float ClientDifferenceTime=0.02f;
-
-	float ServerDifferenceTime = 0.02f;
 
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
@@ -148,8 +139,5 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Combo")
 	TArray<float> EffectiveFrameCount;
-
-	float AttackTime = 0.0f;
-	float LastComboActionStartTime = 0.0f;
 
 };
