@@ -53,7 +53,8 @@ void AMeleeWeaponActor::PickUpWeapon(APlayableCharacter* PickUpCharacter)
 	
 	if (meleeComponent->AttachWeapon(PickUpCharacter))
 	{
-		SetOwner(PickUpCharacter);
+		//SetOwner(PickUpCharacter);
+		SetOwner(PickUpCharacter->GetController());
 		PickUpCharacter->SetEquippedWeapon(this);
 		//Cast<>(PickUpCharacter->GetMesh()->GetAnimInstance())->HasWeapon(true);
 		UE_LOG(LogTemp, Warning, TEXT("PickUp"));
