@@ -21,31 +21,22 @@ URangedWeaponComponent::URangedWeaponComponent()
 	// Default offset from the character location for projectiles to spawn
 	PrimaryComponentTick.bCanEverTick = true;
 	MuzzleOffset = FVector(100.0f, 0.0f, 10.0f);
-
-
 }
 
 void URangedWeaponComponent::CaculateFirePostion()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Fire"));
 
 	Server_CaculateFirePostion();
 }
 
 void URangedWeaponComponent::Server_CaculateFirePostion_Implementation()
 {
-	UE_LOG(LogTemp, Warning, TEXT("serverFire"));
 	Multicast_CaculateFirePostion();
-}
-bool URangedWeaponComponent::Server_CaculateFirePostion_Validate()
-{
-	return true;
 }
 
 void URangedWeaponComponent::Multicast_CaculateFirePostion_Implementation()
 {
 	
-	UE_LOG(LogTemp, Warning, TEXT("MultiFire"));
 	if (FireAnimation != nullptr)
 	{
 		// Get the animation object for the arms mesh
@@ -69,13 +60,8 @@ void URangedWeaponComponent::Multicast_CaculateFirePostion_Implementation()
 		TArray<FHitResult> HitResults;
 		FHitResult HitResult;
 
-		// PlayerController->GetHitResultAtScreenPosition(ScreenCenter, ECC_Visibility, false, HitResult)
-		// GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Visibility)
-
 		if (GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Visibility))
 		{
-			//UE_LOG(LogTemp, Warning, TEXT("Hit Actor: %s"), *HitResult.GetActor()->GetName());
-			//UE_LOG(LogTemp, Warning, TEXT("Class: %s"), *HitResult.GetActor()->GetClass()->GetSuperClass()->GetFName().ToString());
 
 			if (HitResult.GetActor()->GetClass()->GetSuperClass() && HitResult.GetActor()->GetClass()->GetSuperClass() == APlayableCharacter::StaticClass())
 			{
@@ -83,14 +69,10 @@ void URangedWeaponComponent::Multicast_CaculateFirePostion_Implementation()
 			}
 		}
 
-		DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, 2.0f, 0, 1.0f);  // 2.0f는 선의 두께
+		//DrawDebugLine(GetWorld(), Start, End, FColor::Red, false, 2.0f, 0, 1.0f);  // 2.0f는 선의 두께
 
 		
 	}
-}
-bool URangedWeaponComponent::Multicast_CaculateFirePostion_Validate()
-{
-	return true;
 }
 
 void URangedWeaponComponent::Fire()		//총 쏘는 기능
@@ -98,7 +80,6 @@ void URangedWeaponComponent::Fire()		//총 쏘는 기능
 
 	CaculateFirePostion();
 
-	// Try and play the sound if specified
 	if (FireSound != nullptr)
 	{
 		UGameplayStatics::PlaySoundAtLocation(this, FireSound, Character->GetActorLocation());
@@ -108,29 +89,22 @@ void URangedWeaponComponent::Fire()		//총 쏘는 기능
 void URangedWeaponComponent::Zoom()
 {
 	
-	if (bZoom) {
+	if (bZoom) 
+	{
 		bZoom = false;
-		// SetbCanMove(true);
 		Character->GetFollowCamera()->SetFieldOfView(CameraDefaultFOV);
 		Character->GetCameraBoom()->TargetArmLength = 250.0f;
-		UE_LOG(LogTemp, Warning, TEXT("Zoomout"));
 	}
-	else {
+	else 
+	{
 		bZoom = true;
-		// SetbCanMove(false);
 		Character->GetFollowCamera()->SetFieldOfView(CameraZoomedFOV);
 		Character->GetCameraBoom()->TargetArmLength = 150.0f;
-		UE_LOG(LogTemp, Warning, TEXT("Zoomin"));
-
 	}
 
 	if (Character->GetCrosshairWidgetInstance())
 	{
-
-		//CrosshairWidgetInstance = CreateWidget<UUserWidget>(GetWorld(), CrossHairWidget);
-
 		Cast<UCrosshairWidget>(Character->GetCrosshairWidgetInstance())->ChangeZoomState(bZoom);
-		//CrosshairWidgetInstance->ChangeZoomein
 	}
 }
 
@@ -140,7 +114,7 @@ bool URangedWeaponComponent::AttachWeapon(APlayableCharacter* TargetCharacter)		
 	Character->SetHasWeapon(true);
 	TArray<AActor*> ChildActors;
 	Character->GetAttachedActors(ChildActors);
-	//UE_LOG(LogTemp, Warning, TEXT("RangedAttach"));
+
 	for (AActor* ChildActor : ChildActors)
 	{
 		// 각 ChildActor에 대해 작업 수행
@@ -150,9 +124,6 @@ bool URangedWeaponComponent::AttachWeapon(APlayableCharacter* TargetCharacter)		
 		TargetCharacter->MoveCameraToDefaultPosition();
 	}
 
-
-	
-	// Check that the character is valid, and has no weapon component yet
 	if (Character == nullptr)
 	{
 		return false;
@@ -164,10 +135,7 @@ bool URangedWeaponComponent::AttachWeapon(APlayableCharacter* TargetCharacter)		
 	FAttachmentTransformRules AttachmentRules(EAttachmentRule::KeepRelative, true);
 	AttachToComponent(Character->GetMesh(), AttachmentRules, FName(TEXT("GripPoint")));
 	SetRelativeTransform(RelativeTransform);
-															// add the weapon as an instance component to the character
-	
-	
-	// Set up action bindings
+
 	if (APlayerController* PlayerController = Cast<APlayerController>(Character->GetController()))		//좌클릭을 눌렀을 때 Fire가 작동되도록
 	{
 		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
@@ -178,7 +146,6 @@ bool URangedWeaponComponent::AttachWeapon(APlayableCharacter* TargetCharacter)		
 
 		if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerController->InputComponent))
 		{
-			// Swing
 			EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &URangedWeaponComponent::RangedWeaponLook);
 
 			EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Triggered, this, &URangedWeaponComponent::Fire);
@@ -188,11 +155,8 @@ bool URangedWeaponComponent::AttachWeapon(APlayableCharacter* TargetCharacter)		
 
 		}
 	}
-
 	TargetCharacter->MoveCameraToRangedWeaponPosition();
-	//GetWorld()->GetTimerManager().SetTimer(RotationTimer, this, &URangedWeaponComponent::RangedWeaponLook, 0.01f, true);
-	//틱으로 바꿔야겠다.
-	
+
 	return true;
 }
 
@@ -215,14 +179,13 @@ void URangedWeaponComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 void URangedWeaponComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-	//UE_LOG(LogTemp, Warning, TEXT("Tick"));
+
 	RangedWeaponLook();
 
 }
 
 void URangedWeaponComponent::RangedWeaponLook()
 {
-	//UE_LOG(LogTemp, Warning, TEXT("RangedWeaponLoock"));
 	if (Character)
 	{
 		APlayerController* PlayerController = Cast<APlayerController>(Character->GetController());

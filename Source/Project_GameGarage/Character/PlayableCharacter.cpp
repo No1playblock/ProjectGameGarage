@@ -31,7 +31,7 @@
 #include "Game/GGGameInstance.h"
 #include "Game/MyGameMode.h"
 #include "Kismet/GameplayStatics.h"
-
+#include "Kismet/KismetMathLibrary.h"
 
 // Sets default values
 APlayableCharacter::APlayableCharacter() :
@@ -129,24 +129,24 @@ void APlayableCharacter::OnHandCollision(UPrimitiveComponent* OverlappedComponen
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
 	bool bFromSweep, const FHitResult& SweepResult)
 {
-	bishitted = true;
+	bIshitted = true;
 	//ECollisionChannel playerCollisionChannel = ECC_EngineTraceChannel1;
-	if (OtherActor && (OtherActor != this) && (OtherComp->GetCollisionObjectType() == ECC_GameTraceChannel1) && bisAttacking)		//맞은거 타입이 Player면
+	if (OtherActor && (OtherActor != this) && (OtherComp->GetCollisionObjectType() == ECC_GameTraceChannel1) && bIsAttacking)		//맞은거 타입이 Player면
 	{
 
-		if (isLeftPunch)		//안 맞게 하기
+		if (bIsLeftPunch)		//안 맞게 하기
 		{
-			if (Cast<APlayableCharacter>(OtherActor)->isLeftDodge)
+			if (Cast<APlayableCharacter>(OtherActor)->bIsLeftDodge)
 				return;
 		}
-		if (isRightPunch)
+		if (bIsRightPunch)
 		{
-			if (Cast<APlayableCharacter>(OtherActor)->isRightDodge)
+			if (Cast<APlayableCharacter>(OtherActor)->bIsRightDodge)
 				return;
 		}
 
 		// 충돌 처리 로직
-		bisAttacking = false;//
+		bIsAttacking = false;//
 		ensure(Cast<APlayableCharacter>(OtherActor));
 		if (Cast<APlayableCharacter>(OtherActor))
 		{
@@ -155,7 +155,7 @@ void APlayableCharacter::OnHandCollision(UPrimitiveComponent* OverlappedComponen
 
 
 		GG_LOG(LogTemp, Warning, TEXT("Hand collision detected with: %s"), *OtherActor->GetName());
-		GG_LOG(LogTemp, Warning, TEXT("Count: %d"), ++count);
+		GG_LOG(LogTemp, Warning, TEXT("Count: %d"), ++Count);
 	}
 
 }
@@ -220,6 +220,21 @@ void APlayableCharacter::Server_LoadAndApplySavedData_Implementation(USkeletalMe
 void APlayableCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	if (!HPWidget) return;
+
+	
+	APlayerCameraManager* CameraManager = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0);
+	if (!CameraManager) return;
+
+	
+	FVector StartLocation = HPWidget->GetComponentLocation();
+	FVector TargetLocation = CameraManager->GetRootComponent()->GetComponentLocation();
+
+	
+	FRotator LookAtRotation = UKismetMathLibrary::FindLookAtRotation(StartLocation, TargetLocation);
+
+	// 회전 적용
+	HPWidget->SetWorldRotation(LookAtRotation);
 }
 
 // Called to bind functionality to input
@@ -328,11 +343,11 @@ void APlayableCharacter::Multicast_LeftPunch_Implementation()
 
 	if (!GetHasWepaon())
 	{
-		if (!isLeftPunch)
+		if (!bIsLeftPunch)
 		{
-			bisAttacking = true;
-			PlayAnimMontage(LeftPunchMontange, punchAnimSpeed); // 서버에서 애니메이션 재생
-			isLeftPunch = true;
+			bIsAttacking = true;
+			PlayAnimMontage(LeftPunchMontange, PunchAnimSpeed); // 서버에서 애니메이션 재생
+			bIsLeftPunch = true;
 
 			UE_LOG(LogTemp, Warning, TEXT("LeftPunch"));
 		}
@@ -343,16 +358,6 @@ void APlayableCharacter::Multicast_LeftPunch_Implementation()
 bool APlayableCharacter::Multicast_LeftPunch_Validate()
 {
 	return true;
-}
-
-void APlayableCharacter::SetbCanMove(bool isbool)
-{
-	bCanMove = isbool;
-}
-
-bool APlayableCharacter::GetbCanMove()
-{
-	return bCanMove;
 }
 
 void APlayableCharacter::RightPunch()
@@ -371,10 +376,10 @@ void APlayableCharacter::Multicast_RightPunch_Implementation()
 {
 	SetbCanMove(false);
 
-	if (!isRightPunch) {
-		bisAttacking = true;
-		PlayAnimMontage(RightPunchMontange, punchAnimSpeed);
-		isRightPunch = true;
+	if (!bIsRightPunch) {
+		bIsAttacking = true;
+		PlayAnimMontage(RightPunchMontange, PunchAnimSpeed);
+		bIsRightPunch = true;
 	}
 }
 bool APlayableCharacter::Multicast_RightPunch_Validate()
@@ -394,17 +399,6 @@ void APlayableCharacter::MoveCameraToDefaultPosition()
 	FollowCamera->SetRelativeRotation(FRotator(-20.f, 0.f, 0.f));
 }
 
-void APlayableCharacter::SetEmoMaterial(UMaterialInstance* EmoMaterial)
-{
-	GetMesh()->SetMaterial(1, EmoMaterial);
-}
-
-void APlayableCharacter::SetSkin(USkeletalMesh* Skin)
-{
-	GetMesh()->SetSkeletalMeshAsset(Skin);
-
-}
-
 void APlayableCharacter::UpdateScore(float score)
 {
 	Score += score;
@@ -413,7 +407,7 @@ void APlayableCharacter::UpdateScore(float score)
 void APlayableCharacter::LeftDodge()
 {
 	Server_LeftDodge();
-	UE_LOG(LogTemp, Warning, TEXT("isLeftDodge: %s"), isLeftDodge ? TEXT("true") : TEXT("false"));
+	UE_LOG(LogTemp, Warning, TEXT("isLeftDodge: %s"), bIsLeftDodge ? TEXT("true") : TEXT("false"));
 }
 void APlayableCharacter::Server_LeftDodge_Implementation()
 {
@@ -427,15 +421,15 @@ bool APlayableCharacter::Server_LeftDodge_Validate()
 
 void APlayableCharacter::Multicast_LeftDodge_Implementation()
 {
-	if (isLeftDodge)
+	if (bIsLeftDodge)
 	{
-		isLeftDodge = false;
+		bIsLeftDodge = false;
 		SetbCanMove(true);
 	}
 
 	else		//dodge 상태
 	{
-		isLeftDodge = true;
+		bIsLeftDodge = true;
 
 		SetbCanMove(false);
 	}
@@ -449,7 +443,7 @@ bool APlayableCharacter::Multicast_LeftDodge_Validate()
 void APlayableCharacter::RightDodge()
 {
 	Server_RightDodge();
-	UE_LOG(LogTemp, Warning, TEXT("isRigtDodge: %s"), isRightDodge ? TEXT("true") : TEXT("false"));
+	UE_LOG(LogTemp, Warning, TEXT("isRigtDodge: %s"), bIsRightDodge ? TEXT("true") : TEXT("false"));
 }
 void APlayableCharacter::Server_RightDodge_Implementation()
 {
@@ -463,15 +457,15 @@ bool APlayableCharacter::Server_RightDodge_Validate()
 
 void APlayableCharacter::Multicast_RightDodge_Implementation()
 {
-	if (isRightDodge)
+	if (bIsRightDodge)
 	{
-		isRightDodge = false;
+		bIsRightDodge = false;
 		SetbCanMove(true);
 	}
 
 	else
 	{
-		isRightDodge = true;
+		bIsRightDodge = true;
 		SetbCanMove(false);
 	}
 }

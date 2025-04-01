@@ -23,18 +23,22 @@ class PROJECT_GAMEGARAGE_API AWeaponActor : public AActor
 {
 	GENERATED_BODY()
 	
+public:
+	// Sets default values for this actor's properties
+	AWeaponActor();
+
+	FORCEINLINE EWeaponType GetWeaponType() { return Weapontype; }
+
 protected:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
-	UPickUpComponent* pickUpComponent;
+	
 
 	UFUNCTION(BlueprintCallable)
 	virtual void PickUpWeapon(APlayableCharacter* PickUpCharacter);
 
-public:	
-	// Sets default values for this actor's properties
-	AWeaponActor();
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	UPickUpComponent* PickUpComponent;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	EWeaponType weapontype;
+	UPROPERTY(EditAnywhere)
+	EWeaponType Weapontype;
 
 };

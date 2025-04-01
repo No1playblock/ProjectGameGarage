@@ -14,6 +14,6 @@ class PROJECT_GAMEGARAGE_API UHpBarWidgetComponent : public UWidgetComponent
 {
 	GENERATED_BODY()
 	
-protected:
+private:
 	virtual void InitWidget() override;
 };

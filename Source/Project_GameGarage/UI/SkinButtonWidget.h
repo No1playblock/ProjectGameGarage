@@ -17,16 +17,17 @@ class PROJECT_GAMEGARAGE_API USkinButtonWidget : public UCustomButtonWidget
 {
 	GENERATED_BODY()
 	
-	UPROPERTY(EditAnyWhere, BlueprintReadWrite, Category = "Appearance", meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<USkeletalMesh> Skin;
-
-	virtual void NativeConstruct() override;
 public:
 	
-
 	virtual void SetClicked(bool bIsClicked) override;
 
 	void SetSkinBtnData(USkeletalMesh* NewMesh, UTexture2D* NewImage);
 
-	USkeletalMesh* GetSkin();
+	FORCEINLINE USkeletalMesh* GetSkin() { return Skin; }
+
+private:
+	UPROPERTY(EditAnyWhere, Category = "Appearance", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<USkeletalMesh> Skin;
+
+	virtual void NativeConstruct() override;
 };

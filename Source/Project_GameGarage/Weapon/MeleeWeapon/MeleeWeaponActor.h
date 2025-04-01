@@ -18,28 +18,24 @@ class PROJECT_GAMEGARAGE_API AMeleeWeaponActor : public AWeaponActor
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
-	UMeleeWeaponComponent* meleeComponent;
-
-	virtual void PickUpWeapon(APlayableCharacter* PickUpCharacter) override;
 public:	
-	// Sets default values for this actor's properties
 
-	UFUNCTION(BlueprintCallable)
-	UMeleeWeaponComponent* GetMeleeComponent();
+	FORCEINLINE UMeleeWeaponComponent* GetMeleeComponent() { return meleeComponent; }
 
-	UPROPERTY(EditAnyWhere, BlueprintReadWrite)	//충돌 한번만 확인하기 위해서
-	bool bisHit;
+	//충돌 한번만 확인하기 위해서
+	bool bIsHit;
 
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+private:
+	
 	AMeleeWeaponActor();
+
+	virtual void BeginPlay() override;
 
 	UFUNCTION()
 	void OverlapmeleeComponent(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
+	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UMeleeWeaponComponent> meleeComponent;
+
+	virtual void PickUpWeapon(APlayableCharacter* PickUpCharacter) override;
 };

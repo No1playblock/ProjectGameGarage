@@ -17,23 +17,15 @@ class PROJECT_GAMEGARAGE_API ARangedWeaponActor : public AWeaponActor
 	GENERATED_BODY()
 	
 public:	
-	// Sets default values for this actor's properties
-	ARangedWeaponActor();
-	
-	virtual void PickUpWeapon(APlayableCharacter* PickUpCharacter) override;
-
 	FORCEINLINE URangedWeaponComponent* GetRangedComponent() const { return RangedComponent; }
 	
-
-
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
+private:
+	
+	ARangedWeaponActor();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<URangedWeaponComponent> RangedComponent;
-public:
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+
+	virtual void PickUpWeapon(APlayableCharacter* PickUpCharacter) override;
 
 };

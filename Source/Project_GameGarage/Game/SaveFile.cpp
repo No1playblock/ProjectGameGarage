@@ -19,5 +19,5 @@ USaveFile::USaveFile()
     else
         UE_LOG(LogTemp, Warning, TEXT("SaveFile NULLNULL"));
 
-    //UE_LOG(LogTemp, Warning, TEXT("Construtctor, SaveSkin : %s, SaveEmo : %s"), *SaveSkin->GetFName().ToString(), *SaveEmo->GetFName().ToString());
+
 }

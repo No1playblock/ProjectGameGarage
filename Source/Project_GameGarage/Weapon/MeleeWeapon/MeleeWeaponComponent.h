@@ -12,87 +12,23 @@
  */
 class APlayableCharacter;
 
-
-
-USTRUCT(BlueprintType)
-struct FComboAttack
-{
-	GENERATED_BODY()
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Structure")
-	class UAnimSequence* Animation;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Structure")
-	float DamageMultiplier;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Structure")
-	float AttackSpeedRate;
-
-	FComboAttack()
-		: Animation(nullptr)
-		, DamageMultiplier(1.0f)
-		, AttackSpeedRate(1.0f)
-	{
-	}
-};
-
-
 UCLASS(Blueprintable, BlueprintType, ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class PROJECT_GAMEGARAGE_API UMeleeWeaponComponent : public	UStaticMeshComponent
 {
 	GENERATED_BODY()
 	
-
-private:
-	UMeleeWeaponComponent();
-
-	APlayableCharacter* Character;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation", meta = (AllowPrivateAccess = "true"))
-	class UAnimSequence* IdleAnimation;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay, meta = (AllowPrivateAccess = "true"))
-	FVector MuzzleOffset;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	class UInputMappingContext* SwingMappingContext;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	class UInputAction* SwingAction;
-
-	TObjectPtr<class APlayableCharacter> Owner;
-
 public:
 
 	FORCEINLINE UAnimSequence* GetIdleAnim() const { return IdleAnimation; }
 
-	UFUNCTION(BlueprintCallable, Category = "Weapon")
+
 	bool AttachWeapon(APlayableCharacter* TargetCharacter);
 
-	
-	
-protected:
+private:
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
-	float animSpeed;
+	UMeleeWeaponComponent();
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
-	FTransform RelativeTransform;
-
-	UFUNCTION()
-	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AttackCombo")
-	TArray<FComboAttack> Attacks;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation)
-	TObjectPtr<class UAnimMontage> ComboActionMontage;
-
-
-	//ComboAction
-	UPROPERTY(Replicated)
-	int32 CurrentCombo = 0;
-
+	//About ComboAction
 	void PressComboCommand();
 
 	UFUNCTION(Server, Reliable)
@@ -105,9 +41,6 @@ protected:
 	UFUNCTION(NetMulticast, Reliable)
 	void Multicast_PlayAnimation();
 
-
-	bool bisCombo;
-
 	UFUNCTION(NetMulticast, Reliable)
 	void Multicast_JumpToAnimation();
 
@@ -118,14 +51,51 @@ protected:
 
 	void ComboCheck();
 
+	UFUNCTION()
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
 
-	FTimerHandle ComboTimerHandle;
+	//ComboAction
+	UPROPERTY(EditAnywhere, Category = Animation)
+	TObjectPtr<class UAnimMontage> ComboActionMontage;
 
 	UPROPERTY(Replicated)
-	bool bHasNextComboCommand=false;
+	int32 CurrentCombo = 0;
 
+	bool bIsCombo;
+
+
+	UPROPERTY(Replicated)
+	bool bHasNextComboCommand = false;
+
+	FTimerHandle ComboTimerHandle;
+
+
+	//¸â¹öº¯¼ö
+
+	APlayableCharacter* Character;
+
+	UPROPERTY(EditAnywhere, Category = "Animation")
+	TObjectPtr<class UAnimSequence> IdleAnimation;
+
+	UPROPERTY(EditAnywhere, Category = Gameplay)
+	FVector MuzzleOffset;
+
+	UPROPERTY(EditAnywhere, Category = Input)
+	TObjectPtr<class UInputMappingContext> SwingMappingContext;
+
+	UPROPERTY(EditAnywhere, Category = Input)
+	TObjectPtr<class UInputAction> SwingAction;
+
+
+	UPROPERTY(EditAnywhere)
+	float animSpeed;
+
+	UPROPERTY(EditAnywhere)
+	FTransform RelativeTransform;
+
+	TObjectPtr<class APlayableCharacter> Owner;
 
 	//ComboActionData
 	UPROPERTY(EditAnywhere, Category = "Combo")
@@ -139,5 +109,5 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Combo")
 	TArray<float> EffectiveFrameCount;
-
+	
 };

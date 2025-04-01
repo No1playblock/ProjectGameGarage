@@ -15,14 +15,15 @@ class PROJECT_GAMEGARAGE_API UGGGameInstance : public UGameInstance
 {
 	GENERATED_BODY()
 	
-
-private:
-    FString SaveSlotName = TEXT("PlayerSaveSlot");
-
 public:
-   
-    void SavePlayerData(int32 InSkinButtonIndex, int32 InEmoButtonIndex, USkeletalMesh* InSaveSkin, UMaterialInstance* InSaveEmo);
+
+	void SavePlayerData(int32 InSkinButtonIndex, int32 InEmoButtonIndex, USkeletalMesh* InSaveSkin, UMaterialInstance* InSaveEmo);
 
 	USaveFile* LoadPlayerData();
+
+private:
+
+	FString SaveSlotName = TEXT("PlayerSaveSlot");
+
 };
 

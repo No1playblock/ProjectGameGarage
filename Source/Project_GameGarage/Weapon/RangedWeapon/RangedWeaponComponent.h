@@ -17,89 +17,45 @@ class PROJECT_GAMEGARAGE_API URangedWeaponComponent : public UStaticMeshComponen
 {
 	GENERATED_BODY()
 
-	/** Sets default values for this component's properties */
-	URangedWeaponComponent();
-
 public:
-	/*UPROPERTY(EditDefaultsOnly, Category = Projectile)
-	TSubclassOf<class ABulletActor> ProjectileClass;*/
 
-	/** Sound to play each time we fire */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
-	USoundBase* FireSound;
-
-	/** AnimMontage to play each time we fire */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
-	UAnimMontage* FireAnimation;
-
-	/** Gun muzzle's offset from the characters location */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
-	FVector MuzzleOffset;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
-	class UAnimSequence* IdleAnimation;
-
-
-	/** MappingContext */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	class UInputMappingContext* FireMappingContext;
-
-	/** Fire Input Action */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UInputAction> FireAction;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UInputAction> ZoomAction;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UInputAction> LookAction;
-
-	
-
-	/** Attaches the actor to a FirstPersonCharacter */
-	UFUNCTION(BlueprintCallable, Category = "Weapon")
+	UFUNCTION()
 	bool AttachWeapon(APlayableCharacter* TargetCharacter);
 
 	FORCEINLINE UAnimSequence* GetIdleAnim() const { return IdleAnimation; }
 
+private:
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
-	float animSpeed;
+	URangedWeaponComponent();
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
-	FTransform RelativeTransform;
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-protected:
-	/** Ends gameplay for this component. */
-	UFUNCTION()
-	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
-
-	virtual void TickComponent(float DeltaTime,
-		ELevelTick TickType,
-		FActorComponentTickFunction* ThisTickFunction) override;
-
-
-
-	void RangedWeaponLook();
-
-	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	void Fire();
 
 	void Zoom();
 
+	UFUNCTION()
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+
+	void RangedWeaponLook();
 
 	UFUNCTION()
 	void CaculateFirePostion();
 
-	UFUNCTION(Server, Reliable, WithValidation)
+	UFUNCTION(Server, Reliable)
 	void Server_CaculateFirePostion();
 
-	UFUNCTION(NetMulticast, Reliable, WithValidation)
+	UFUNCTION(NetMulticast, Reliable)
 	void Multicast_CaculateFirePostion();
 
-private:
-	/** The Character holding this weapon*/
-	APlayableCharacter* Character;
+
+	UPROPERTY(EditAnywhere)
+	float animSpeed;
+
+	UPROPERTY(EditAnywhere)
+	FTransform RelativeTransform;
+
+	TObjectPtr<APlayableCharacter> Character;
 
 	bool bZoom;
 
@@ -107,5 +63,31 @@ private:
 	float CameraZoomedFOV = 60.0f;
 
 	FTimerHandle RotationTimer;
+
+	UPROPERTY(EditAnywhere, Category = Gameplay)
+	TObjectPtr<USoundBase> FireSound;
+
+	//Animation
+	UPROPERTY(EditAnywhere, Category = Gameplay)
+	TObjectPtr<UAnimMontage> FireAnimation;
+
+	UPROPERTY(EditAnywhere, Category = Gameplay)
+	FVector MuzzleOffset;
+
+	UPROPERTY(EditAnywhere, Category = "Animation")
+	TObjectPtr<class UAnimSequence> IdleAnimation;
+
+	//Input
+	UPROPERTY(EditAnywhere, Category = Input)
+	TObjectPtr<class UInputMappingContext> FireMappingContext;
+
+	UPROPERTY(EditAnywhere, Category = Input)
+	TObjectPtr<UInputAction> FireAction;
+
+	UPROPERTY(EditAnywhere, Category = Input)
+	TObjectPtr<UInputAction> ZoomAction;
+
+	UPROPERTY(EditAnywhere, Category = Input)
+	TObjectPtr<UInputAction> LookAction;
 
 };

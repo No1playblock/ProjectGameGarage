@@ -13,10 +13,8 @@
 
 void USkinButtonWidget::NativeConstruct()
 {
-    Super::NativeConstruct();
-
     // 버튼 이벤트 바인딩
-    
+    Super::NativeConstruct();
 }
 
 void USkinButtonWidget::SetClicked(bool bIsClicked)         //세이브게임에서 부름
@@ -41,8 +39,4 @@ void USkinButtonWidget::SetSkinBtnData(USkeletalMesh* NewMesh, UTexture2D* NewIm
 {
     Skin = NewMesh;
     SetPreviewTexture(NewImage);
-}
-USkeletalMesh* USkinButtonWidget::GetSkin()
-{
-    return Skin;
 }

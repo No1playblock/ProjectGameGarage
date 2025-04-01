@@ -56,9 +56,7 @@ void ACustomizePlayerController::Tick(float DeltaSeconds)
 
 void ACustomizePlayerController::LoadSaveFileAndInitUI()
 {
-    // SaveFile ·Îµå
-    //USaveFile* LoadedSave = Cast<USaveFile>(UGameplayStatics::LoadGameFromSlot("PlayerSaveSlot", 0));
-
+    
     UGGGameInstance* GI = Cast<UGGGameInstance>(GetGameInstance());
     USaveFile* LoadedSave = GI->LoadPlayerData();
 

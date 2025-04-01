@@ -17,23 +17,17 @@ class PROJECT_GAMEGARAGE_API UPickUpComponent : public USphereComponent
 {
 	GENERATED_BODY()
 
-	UPickUpComponent();
-
 public:
 	
 	UPROPERTY(EditAnyWhere, Category = "Interaction")
 	FOnPickUp OnPickUp;
+	
+private:
+	UPickUpComponent();
 
-protected:
-
-	/** Called when the game starts */
-	virtual void BeginPlay() override;
-
-	/** Code for when something overlaps this component */
 	UFUNCTION()
 	void OnSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 
-private:
 	bool bHasExecutedOnce = false;
 };

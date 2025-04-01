@@ -8,9 +8,9 @@ void UHpBarWidgetComponent::InitWidget()
 {
 	Super::InitWidget();
 
-	UGGUserWidget* thisUserWidget = Cast<UGGUserWidget>(GetWidget());
-	if (thisUserWidget)
+	UGGUserWidget* ThisUserWidget = Cast<UGGUserWidget>(GetWidget());
+	if (ThisUserWidget)
 	{
-		thisUserWidget->SetOwningActor(GetOwner());
+		ThisUserWidget->SetOwningActor(GetOwner());
 	}
 }

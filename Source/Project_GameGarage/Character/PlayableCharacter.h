@@ -23,110 +23,83 @@ class PROJECT_GAMEGARAGE_API APlayableCharacter : public ACharacterBase
 	GENERATED_BODY()
 
 
-protected:
+public:
+	// Sets default values for this character's properties
 
-	/** Camera boom positioning the camera behind the character */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<USpringArmComponent> CameraBoom;
+	void MoveCameraToRangedWeaponPosition();
 
-	/** Follow camera */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UCameraComponent> FollowCamera;
+	void MoveCameraToDefaultPosition();
 
-	/** MappingContext */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UInputMappingContext> DefaultMappingContext;
+	void TakeDamage(float damage);
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UInputMappingContext> WeaponMappingContext;
+	UFUNCTION(Server, Reliable)
+	void Server_LoadAndApplySavedData(USkeletalMesh* NewSkin, UMaterialInstance* NewEmotion);
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Collision", meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UCapsuleComponent> LeftHandCollision;
+	//Setter
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Collision", meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UCapsuleComponent> RightHandCollision;
+	void SetHasWeapon(bool ISHASWEAPON);
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
-	TObjectPtr<class AWeaponActor> EquippedWeapon;
+	FORCEINLINE void SetbCanMove(bool isbool) { bCanMove = isbool; }
 
-	/** Jump Input Action */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UInputAction> JumpAction;
+	FORCEINLINE void SetEmoMaterial(UMaterialInstance* EmoMaterial) { GetMesh()->SetMaterial(1, EmoMaterial); }
 
-	/** Move Input Action */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UInputAction> MoveAction;
+	FORCEINLINE void SetSkin(USkeletalMesh* Skin) { GetMesh()->SetSkeletalMeshAsset(Skin); }
 
-	/** Look Input Action */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UInputAction> LookAction;
+	FORCEINLINE void SetBisAttacking(bool isattack) { bIsAttacking = isattack; }
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UInputAction> LeftClickAction;
+	FORCEINLINE void SetIsLeftPunch(bool ispunch) { bIsLeftPunch = ispunch; }
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UInputAction> RightClickAction;
+	FORCEINLINE void SetIsRightPunch(bool ispunch) { bIsRightPunch = ispunch; }
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UInputAction> LeftDodgeAction;
+	FORCEINLINE void SetEquippedWeapon(AWeaponActor* weapon) { EquippedWeapon = weapon; }
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UInputAction> RightDodgeAction;
+	//Getter
+	
+	FORCEINLINE UCapsuleComponent* GetLeftHandCollision() const { return LeftHandCollision; }
 
+	FORCEINLINE UCapsuleComponent* GetRightHandCollision() const { return RightHandCollision; }
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation, meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UAnimMontage> LeftPunchMontange;
+	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation, meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UAnimMontage> RightPunchMontange;
+	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 
+	//¸â¹öº¯¼ö
+	FORCEINLINE AWeaponActor* GetEquippedWeapon() const { return EquippedWeapon; }
+
+	FORCEINLINE bool GetHasWepaon() const { return bHasWeapon; }
+
+	FORCEINLINE class UUserWidget* GetCrosshairWidgetInstance() const { return CrosshairWidgetInstance; }
+
+	FORCEINLINE bool GetbCanMove() const { return bCanMove; }	
 
 private:
-	UPROPERTY(ReplicatedUsing= OnRep_SetSkinAndEmotion, VisibleAnywhere, Category = "Customizing")
-	TObjectPtr<USkeletalMesh> PlayerMesh;
 
-	UPROPERTY(ReplicatedUsing = OnRep_SetSkinAndEmotion, VisibleAnywhere, Category = "Customizing")
-	TObjectPtr<UMaterialInstance> PlayerEmo;
-
-
-protected:
+	//»ý¼ºÀÚ
 	APlayableCharacter();
 
-	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
+	virtual void BeginPlay() override;
+
+	virtual void Tick(float DeltaTime) override;
+
+	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	UFUNCTION()
 	void OnHandCollision(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
-	
+	UFUNCTION()
+	void OnRep_SetSkinAndEmotion();
 
-public:
-	// Sets default values for this character's properties
-	
-	void MoveCameraToRangedWeaponPosition();
-	void MoveCameraToDefaultPosition();
-	
-	UFUNCTION(BlueprintCallable)
-	void SetHasWeapon(bool ISHASWEAPON);
+	void Move(const FInputActionValue& Value);
 
-	UFUNCTION(BlueprintCallable)
-	void SetbCanMove(bool isbool);
+	void Look(const FInputActionValue& Value);
 
-	UFUNCTION(BlueprintCallable)
-	bool GetbCanMove();
+	void Shoot();
 
-	void TakeDamage(float damage);
+	void UpdateScore(float score);
 
-	
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
 
-	UFUNCTION(BlueprintCallable)
-	void SetEmoMaterial(UMaterialInstance* EmoMaterial);
-
-	UFUNCTION(BlueprintCallable)
-	void SetSkin(USkeletalMesh* Skin);
-	//void SetScore(EScoreType scoreToAdd);
-
-private:
-	
+	//LeftPunchFunction
 	UFUNCTION()
 	void LeftPunch();
 
@@ -136,7 +109,7 @@ private:
 	UFUNCTION(NetMulticast, Reliable, WithValidation)
 	void Multicast_LeftPunch();
 
-
+	//RightPunchFunction
 	UFUNCTION()
 	void RightPunch();
 
@@ -146,117 +119,124 @@ private:
 	UFUNCTION(NetMulticast, Reliable, WithValidation)
 	void Multicast_RightPunch();
 
+	//LeftDodgeFunction
 	UFUNCTION()
 	void LeftDodge();
-	UFUNCTION()
-	void RightDodge();
 
 	UFUNCTION(Server, Reliable, WithValidation)
 	void Server_LeftDodge();
+
+	UFUNCTION(NetMulticast, Reliable, WithValidation)
+	void Multicast_LeftDodge();
+
+	//RightDodgeFunction
+	UFUNCTION()
+	void RightDodge();
 
 	UFUNCTION(Server, Reliable, WithValidation)
 	void Server_RightDodge();
 
 	UFUNCTION(NetMulticast, Reliable, WithValidation)
-	void Multicast_LeftDodge();
-
-	UFUNCTION(NetMulticast, Reliable, WithValidation)
 	void Multicast_RightDodge();
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
 
-	
-	UFUNCTION()
-	void OnRep_SetSkinAndEmotion();
-	
 
-	void Move(const FInputActionValue& Value);
+	//ÄÄÆ÷³ÍÆ®
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<USpringArmComponent> CameraBoom;
 
-	/** Called for looking input */
-	void Look(const FInputActionValue& Value);
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UCameraComponent> FollowCamera;
 
-	void Shoot();
 
-	void UpdateScore(float score);
-	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-public:	
-
-	UFUNCTION(Server, Reliable)
-	void Server_LoadAndApplySavedData(USkeletalMesh* NewSkin, UMaterialInstance* NewEmotion);
-
-	FORCEINLINE void SetBisAttacking(bool isattack) { bisAttacking = isattack; }
-
-	FORCEINLINE void SetIsLeftPunch(bool ispunch) { isLeftPunch = ispunch; }
-
-	FORCEINLINE void SetIsRightPunch(bool ispunch) { isRightPunch = ispunch; }
-
-	FORCEINLINE void SetEquippedWeapon(AWeaponActor* weapon)  { EquippedWeapon = weapon; }
-
-	FORCEINLINE UCapsuleComponent* GetLeftHandCollision() const { return LeftHandCollision; }
-
-	FORCEINLINE UCapsuleComponent* GetRightHandCollision() const { return RightHandCollision; }
-
-	FORCEINLINE AWeaponActor* GetEquippedWeapon() const { return EquippedWeapon; }
-
-	FORCEINLINE bool GetHasWepaon() const { return bHasWeapon; }
-
-	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
-	/** Returns FollowCamera subobject **/
-	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
-
-	FORCEINLINE class UUserWidget* GetCrosshairWidgetInstance() const { return CrosshairWidgetInstance; }
-
-	
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation, meta = (AllowPrivateAccess = "true"))
-	bool isLeftPunch;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation, meta = (AllowPrivateAccess = "true"))
-	bool isRightPunch;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation, meta = (AllowPrivateAccess = "true"))
-	bool isLeftDodge;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation, meta = (AllowPrivateAccess = "true"))
-	bool isRightDodge;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation, meta = (AllowPrivateAccess = "true"))
-	bool isZoom;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation, meta = (AllowPrivateAccess = "true"))
-	bool bisAttacking;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation, meta = (AllowPrivateAccess = "true"))
-	bool bishitted;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UI, meta = (AllowPrivateAccess = "true"))
+	//¸â¹öº¯¼ö
+	UPROPERTY()
 	TObjectPtr<UUserWidget> CrosshairWidgetInstance;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, Category = "UI", meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<UUserWidget> CrossHairWidget;
 
-	
 
-private:
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "System", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(ReplicatedUsing = OnRep_SetSkinAndEmotion)
+	TObjectPtr<USkeletalMesh> PlayerMesh;
+
+	UPROPERTY(ReplicatedUsing = OnRep_SetSkinAndEmotion)
+	TObjectPtr<UMaterialInstance> PlayerEmo;
+
+	//MappingContext
+	UPROPERTY(EditAnywhere, Category = Input, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UInputMappingContext> DefaultMappingContext;
+
+	UPROPERTY(EditAnywhere, Category = Input, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UInputMappingContext> WeaponMappingContext;
+
+	UPROPERTY(EditAnywhere, Category = "Collision", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UCapsuleComponent> LeftHandCollision;
+
+	UPROPERTY(EditAnywhere, Category = "Collision", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UCapsuleComponent> RightHandCollision;
+
+	UPROPERTY(EditAnywhere, Category = "Weapon")
+	TObjectPtr<class AWeaponActor> EquippedWeapon;
+
+	//InputAction
+	UPROPERTY(EditAnywhere, Category = Input, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UInputAction> JumpAction;
+
+	UPROPERTY(EditAnywhere, Category = Input, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UInputAction> MoveAction;
+
+	UPROPERTY(EditAnywhere, Category = Input, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UInputAction> LookAction;
+
+	UPROPERTY(EditAnywhere, Category = Input, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UInputAction> LeftClickAction;
+
+	UPROPERTY(EditAnywhere, Category = Input, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UInputAction> RightClickAction;
+
+	UPROPERTY(EditAnywhere, Category = Input, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UInputAction> LeftDodgeAction;
+
+	UPROPERTY(EditAnywhere, Category = Input, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UInputAction> RightDodgeAction;
+
+	//AnimMontage
+	UPROPERTY(EditAnywhere, Category = Animation, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UAnimMontage> LeftPunchMontange;
+
+	UPROPERTY(EditAnywhere, Category = Animation, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UAnimMontage> RightPunchMontange;
+
+
+	UPROPERTY(BlueprintReadWrite, Category = Animation, meta = (AllowPrivateAccess = "true"))
+	bool bIsLeftDodge;
+
+	UPROPERTY(BlueprintReadWrite, Category = Animation, meta = (AllowPrivateAccess = "true"))
+	bool bIsRightDodge;
+
+	bool bIsLeftPunch;
+
+	bool bIsRightPunch;
+
+	bool bIsZoom;
+
+	bool bIsAttacking;
+
+	bool bIshitted;
+
+
 	uint8 Score;
 
 	bool bHasWeapon;
 	
-	
-	/*UPROPERTY(Replicated)
-	float HP;*/
-	
-	float punchAnimSpeed = 2.0f;
-	int count = 0;
+	float PunchAnimSpeed = 2.0f;
+
+	int Count = 0;
+
 	bool bCanMove;
 	
 	FVector DefaultCameraPosition = FVector(0.f, 0.f, 130.f);
+
 	FVector RangedWeaponCameraPosition = FVector(0.f, 60.f, 80.f);
 	
 };

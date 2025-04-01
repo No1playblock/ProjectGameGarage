@@ -14,39 +14,37 @@ class PROJECT_GAMEGARAGE_API APressurePlate : public AActor
 {
 	GENERATED_BODY()
 
+public:	
 
-protected:
+	UFUNCTION()
+	void PressButton(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	UFUNCTION()
+	void UnPressButton(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
+	UPROPERTY(BlueprintAssignable, Category = "Button")
+	FOnButtonPressed OnButtonPressed;
+
+private:
 
 	APressurePlate();
 
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere)
 	TObjectPtr<class UBoxComponent> BoxCollision;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPriavetAccess = "true"))
+	UPROPERTY(EditAnywhere)
 	TObjectPtr<class UStaticMeshComponent> FloorCube;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPriavetAccess = "true"))
+	UPROPERTY(EditAnywhere)
 	TObjectPtr<class UStaticMeshComponent> SwitchCube;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPriavetAccess = "true"))
+	UPROPERTY(EditAnywhere)
 	TObjectPtr<class UMaterial> SwitchDefaultMaterial;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPriavetAccess = "true"))
+	UPROPERTY(EditAnywhere)
 	TObjectPtr<class UMaterial> SwitchPushMaterial;
-	
-public:	
-	// Called every frame
-	UPROPERTY(BlueprintAssignable, Category = "Button")
-	FOnButtonPressed OnButtonPressed;
-
-	UFUNCTION(BlueprintCallable)
-	void PressButton(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-
-
-	UFUNCTION(BlueprintCallable)
-	void UnPressButton(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 };

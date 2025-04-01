@@ -6,7 +6,7 @@
 
 void AWeaponActor::PickUpWeapon(APlayableCharacter* PickUpCharacter)
 {
-	//RootComponent = pickUpComponent;
+	
 }
 
 // Sets default values

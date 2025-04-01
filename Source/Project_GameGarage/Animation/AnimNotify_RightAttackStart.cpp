@@ -8,13 +8,13 @@
 void UAnimNotify_RightAttackStart::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
 {
 	Super::Notify(MeshComp, Animation, EventReference);
-	//UE_LOG(LogTemp, Warning, TEXT("AttackStartNotify"));
+	
 	if (MeshComp)
 	{
-		APlayableCharacter* player = Cast<APlayableCharacter>(MeshComp->GetOwner());
-		if (player)
+		APlayableCharacter* Player = Cast<APlayableCharacter>(MeshComp->GetOwner());
+		if (Player)
 		{
-			player->GetRightHandCollision()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+			Player->GetRightHandCollision()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 		}
 
 	}

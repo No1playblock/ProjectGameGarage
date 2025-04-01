@@ -15,7 +15,6 @@ UCLASS()
 class PROJECT_GAMEGARAGE_API USaveFile : public USaveGame
 {
 	GENERATED_BODY()
-	USaveFile();
 
 public:
 	UPROPERTY()
@@ -29,5 +28,9 @@ public:
 
 	UPROPERTY()
 	UMaterialInstance* SaveEmo;
+
+private:
+	USaveFile();
+
 	
 };

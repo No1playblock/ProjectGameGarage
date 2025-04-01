@@ -13,13 +13,13 @@ void UAnimNotify_MeleeAttackEnd::Notify(USkeletalMeshComponent* MeshComp, UAnimS
 	//UE_LOG(LogTemp, Warning, TEXT("AttackEndNotify"));
 	if (MeshComp)
 	{
-		APlayableCharacter* player = Cast<APlayableCharacter>(MeshComp->GetOwner());
-		if (player)
+		APlayableCharacter* Player = Cast<APlayableCharacter>(MeshComp->GetOwner());
+		if (Player)
 		{
-			AMeleeWeaponActor* meleeweapon = Cast<AMeleeWeaponActor>(player->GetEquippedWeapon());
+			AMeleeWeaponActor* MeleeWeapon = Cast<AMeleeWeaponActor>(Player->GetEquippedWeapon());
 
-			meleeweapon->GetMeleeComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-			meleeweapon->bisHit = false;
+			MeleeWeapon->GetMeleeComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+			MeleeWeapon->bIsHit = false;
 			
 			//UE_LOG(LogTemp, Warning, TEXT("AttackEnd"));
 		}

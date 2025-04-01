@@ -16,26 +16,25 @@ UCLASS()
 class PROJECT_GAMEGARAGE_API ACustomizePlayerController : public AGGPlayerController
 {
 	GENERATED_BODY()
-	
-
-protected:
-    
-    virtual void BeginPlay() override;
-
-    ACustomizePlayerController();
-
-    virtual void Tick(float DeltaSeconds) override;
-    
-    UPROPERTY(EditAnywhere, Category = "UI")
-    TSubclassOf<UUserWidget> CustomizeWidgetClass;
 
     
 private:
     
+    ACustomizePlayerController();
+
+    virtual void BeginPlay() override;
+
+    virtual void Tick(float DeltaSeconds) override;
+
+    void LoadSaveFileAndInitUI();
+    
+    void SetCustomizeLevel();
+
+    UPROPERTY(EditAnywhere, Category = "UI")
+    TSubclassOf<UUserWidget> CustomizeWidgetClass;
 
     UPROPERTY()
     TObjectPtr<UCustomizingWidget> CustomizeWidget;
 
-    void LoadSaveFileAndInitUI();
-    void SetCustomizeLevel();
+    
 };

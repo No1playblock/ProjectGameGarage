@@ -21,15 +21,13 @@ public:
 	UFUNCTION()
 	void SetTimerText(FText text);
 
-	
-
 protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI", meta = (AllowPrivateAccess = "true"))
 	bool bIsZoom;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI", meta = (BindWidget))
-	class UTextBlock* timerText;
+	class UTextBlock* TimerText;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI", meta = (BindWidget))
 	TObjectPtr<class UImage> PistolCrosshair;

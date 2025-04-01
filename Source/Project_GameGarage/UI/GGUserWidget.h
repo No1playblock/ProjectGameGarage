@@ -16,10 +16,7 @@ class PROJECT_GAMEGARAGE_API UGGUserWidget : public UUserWidget
 
 
 public:
-	FORCEINLINE void SetOwningActor(AActor* NewOwner)
-	{
-		OwningActor = NewOwner;
-	}
+	FORCEINLINE void SetOwningActor(AActor* NewOwner){ OwningActor = NewOwner; }
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Actor")

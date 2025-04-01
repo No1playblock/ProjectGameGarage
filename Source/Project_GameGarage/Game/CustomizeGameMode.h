@@ -14,6 +14,7 @@ class PROJECT_GAMEGARAGE_API ACustomizeGameMode : public AGameModeBase
 {
 	GENERATED_BODY()
 	
+private:
 	ACustomizeGameMode();
 
 	virtual void PostLogin(APlayerController* NewPlayer) override;

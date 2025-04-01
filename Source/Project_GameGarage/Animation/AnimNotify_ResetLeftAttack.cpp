@@ -7,16 +7,16 @@
 void UAnimNotify_ResetLeftAttack::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
 {
 	Super::Notify(MeshComp, Animation, EventReference);
-	//UE_LOG(LogTemp, Warning, TEXT("AttackStartNotify"));
+	
 	if (MeshComp)
 	{
-		APlayableCharacter* player = Cast<APlayableCharacter>(MeshComp->GetOwner());
-		if (player)
+		APlayableCharacter* Player = Cast<APlayableCharacter>(MeshComp->GetOwner());
+		if (Player)
 		{
-			player->SetBisAttacking(false);
-			player->SetIsLeftPunch(false);
-			player->GetLeftHandCollision()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-			player->SetbCanMove(true);
+			Player->SetBisAttacking(false);
+			Player->SetIsLeftPunch(false);
+			Player->GetLeftHandCollision()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+			Player->SetbCanMove(true);
 		}
 
 	}

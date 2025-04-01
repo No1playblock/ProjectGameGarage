@@ -33,7 +33,6 @@ bool UMeleeWeaponComponent::AttachWeapon(APlayableCharacter* TargetCharacter)		/
 	Character = TargetCharacter;
 	Character->SetHasWeapon(true);				//Weapon으로 덮어씌우기 위함.
 
-	UE_LOG(LogTemp, Warning, TEXT("Attach"));
 	TArray<AActor*> ChildActors;
 	Character->GetAttachedActors(ChildActors);	//붙어있는 자식 가져와서 
 
@@ -64,7 +63,6 @@ bool UMeleeWeaponComponent::AttachWeapon(APlayableCharacter* TargetCharacter)		/
 	{
 		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
 		{
-
 			Subsystem->AddMappingContext(SwingMappingContext, 1);
 		}
 
@@ -81,12 +79,12 @@ void UMeleeWeaponComponent::PressComboCommand()
 {
 	if (CurrentCombo == 0)
 	{
-		bisCombo = true;
+		bIsCombo = true;
 		Server_ComboActionBegin();
 		
 		return;
 	}
-	if (!bisCombo)		//콤보가 진행중인 상태면 bhas를 true로
+	if (!bIsCombo)		//콤보가 진행중인 상태면 bhas를 true로
 	{
 
 		if (Character->HasAuthority())
@@ -129,12 +127,12 @@ void UMeleeWeaponComponent::Multicast_PlayAnimation_Implementation()
 	CurrentCombo = 1;
 	//Animation Setting
 	const float AttackSpeedRate = 1.0f;
-	UAnimInstance* Animinstance = Character->GetMesh()->GetAnimInstance();
-	Animinstance->Montage_Play(ComboActionMontage, AttackSpeedRate);
+	UAnimInstance* AnimInstance = Character->GetMesh()->GetAnimInstance();
+	AnimInstance->Montage_Play(ComboActionMontage, AttackSpeedRate);
 
 	FOnMontageEnded EndDelegate;
 	EndDelegate.BindUObject(this, &UMeleeWeaponComponent::ComboActionEnded);
-	Animinstance->Montage_SetEndDelegate(EndDelegate, ComboActionMontage);
+	AnimInstance->Montage_SetEndDelegate(EndDelegate, ComboActionMontage);
 }
 
 void UMeleeWeaponComponent::Multicast_JumpToAnimation_Implementation()
@@ -153,7 +151,7 @@ void UMeleeWeaponComponent::ComboActionEnded(UAnimMontage* TargetMontage, bool I
 {
 	
 	CurrentCombo = 0;
-	bisCombo = false;
+	bIsCombo = false;
 
 }
 void UMeleeWeaponComponent::SetComboCheckTimer()
@@ -181,12 +179,10 @@ void UMeleeWeaponComponent::SetComboCheckTimer()
 void UMeleeWeaponComponent::ComboCheck()
 {
 
-	GG_LOG(LogGGNetwork, Warning, TEXT("COmboCheck Time: %f"), GetWorld()->GetGameState()->GetServerWorldTimeSeconds());
 	if (bHasNextComboCommand)
 	{
 		Multicast_JumpToAnimation();
 
-		GG_LOG(LogGGNetwork, Warning, TEXT("Play ANimation"));
 		SetComboCheckTimer();
 
 		if (!Character->HasAuthority())
@@ -197,7 +193,7 @@ void UMeleeWeaponComponent::ComboCheck()
 }
 
 
-void UMeleeWeaponComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)			//
+void UMeleeWeaponComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)			
 {
 	if (Character == nullptr)
 	{

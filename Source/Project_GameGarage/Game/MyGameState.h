@@ -14,21 +14,24 @@ class PROJECT_GAMEGARAGE_API AMyGameState : public AGameStateBase
 {
 	GENERATED_BODY()
 	
+public:
+
+
+    UFUNCTION()
+    void SetTimer(int time);
+
+    UPROPERTY(ReplicatedUsing = OnRep_TimerChanged)
+    int32 Timer;
+
+private:
+
     virtual void BeginPlay() override;
     
-
     AMyGameState();
 
     UFUNCTION()
     void OnRep_TimerChanged();
 
-protected:
-    virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-    
-public:
-    UPROPERTY(ReplicatedUsing = OnRep_TimerChanged)
-    int32 Timer;
+    virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override; 
 
-    UFUNCTION()
-    void SetTimer(int time);
 };

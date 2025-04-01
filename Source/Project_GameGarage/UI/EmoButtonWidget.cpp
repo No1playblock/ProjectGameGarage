@@ -12,11 +12,7 @@
 
 void UEmoButtonWidget::NativeConstruct()
 {
-    Super::NativeConstruct();
-
-    // 버튼 이벤트 바인딩
-    
-        
+    Super::NativeConstruct();     
 }
 
 void UEmoButtonWidget::SetClicked(bool bIsClicked)
@@ -32,8 +28,8 @@ void UEmoButtonWidget::SetClicked(bool bIsClicked)
     // 캐릭터의 메쉬 설정
     if (bIsClicked)
     {
-        ACharacter* character = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
-        Cast<APlayableCharacter>(character)->SetEmoMaterial(EmoMaterial);
+        ACharacter* Character = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
+        Cast<APlayableCharacter>(Character)->SetEmoMaterial(EmoMaterial);
     }
 }
 
@@ -41,9 +37,4 @@ void UEmoButtonWidget::SetEmoBtnData(UMaterialInstance* NewMaterial, UTexture2D*
 {
     EmoMaterial = NewMaterial;
     SetPreviewTexture(NewImage);
-}
-
-UMaterialInstance* UEmoButtonWidget::GetEmo()
-{
-    return EmoMaterial;
 }

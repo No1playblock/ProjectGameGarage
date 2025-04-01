@@ -16,7 +16,7 @@ void SHealthBar::UpdateHealth(float NewHealthPercentage)
 {
     TargetHealth = FMath::Clamp(NewHealthPercentage, 0.0f, 1.0f);
 
-    // Critical 상태 확인 (20% 이하)
+    // Critical 확인
     bIsCritical = TargetHealth <= 0.2f;
 
     RegisterActiveTimer(0.f, FWidgetActiveTimerDelegate::CreateSP(this, &SHealthBar::HandleActiveTimer));
@@ -81,7 +81,7 @@ int32 SHealthBar::OnPaint(const FPaintArgs& Args, const FGeometry& AllottedGeome
 
 FLinearColor SHealthBar::GetHealthColor() const
 {
-    // 체력 비율에 따라 색상 변경 (초록 → 노랑 → 빨강)
+    // 체력 비율에 따라 색상 변경
     if (CurrentHealth > 0.7f)
     {
         return FLinearColor::Green;
@@ -98,10 +98,10 @@ FLinearColor SHealthBar::GetHealthColor() const
 }
 EActiveTimerReturnType SHealthBar::HandleActiveTimer(double InCurrentTime, float InDeltaTime)
 {
-    // 부드러운 보간 (Smooth Interpolation)
+    // 부드러운 보간
     CurrentHealth = FMath::FInterpTo(CurrentHealth, TargetHealth, InDeltaTime, InterpolationSpeed);
 
-    // 깜빡임 타이머 (Critical 상태일 때)
+    // Critical 상태일 때 깜빡임 타이머
     if (bIsCritical)
     {
         BlinkTimer += InDeltaTime * 10.0f;  // 깜빡임 속도

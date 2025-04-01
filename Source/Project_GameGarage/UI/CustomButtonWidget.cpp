@@ -64,8 +64,6 @@ void UCustomButtonWidget::OnButtonClicked()
 	}
 }
 
-
-
 void UCustomButtonWidget::SetClicked(bool bIsClicked)
 {
 

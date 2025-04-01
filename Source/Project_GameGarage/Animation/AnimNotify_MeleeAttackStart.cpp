@@ -10,14 +10,14 @@
 void UAnimNotify_MeleeAttackStart::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
 {
 	Super::Notify(MeshComp, Animation, EventReference);
-	//UE_LOG(LogTemp, Warning, TEXT("AttackStartNotify"));
+	
 	if (MeshComp)
 	{
-		APlayableCharacter* player = Cast<APlayableCharacter>(MeshComp->GetOwner());
-		if (player)
+		APlayableCharacter* Player = Cast<APlayableCharacter>(MeshComp->GetOwner());
+		if (Player)
 		{
-			Cast<AMeleeWeaponActor>(player->GetEquippedWeapon())->GetMeleeComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-			//UE_LOG(LogTemp, Warning, TEXT("AttackStart"));
+			Cast<AMeleeWeaponActor>(Player->GetEquippedWeapon())->GetMeleeComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+			
 		}
 		
 	}

@@ -26,47 +26,50 @@ class PROJECT_GAMEGARAGE_API UCustomizePanel : public UUserWidget
 	
 
 public:
-	void ButtonClicked(UCustomButtonWidget* NewButton);
 
-	UCustomButtonWidget* GetSelectedButton();
+	FORCEINLINE UCustomButtonWidget* GetSelectedButton() { return SelectedButton; }
+
+	FORCEINLINE int32 GetSelectedButtonIndex() { return SelectedButtonIndex; }
 
 	void SetSelectedButton(int32 index);
-	int32 GetSelectedButtonIndex();
-protected:
 
-	
+	void ButtonClicked(UCustomButtonWidget* NewButton);
 
-	int32 GetColumnCount(FName columnName);
+
+private:
 
 	void CreateCustomizeSkinPanel(int32 ColumnNum);
 
 	void CreateCustomizeEmoPanel(int32 ColumnNum);
 
-	
-	
 	virtual void NativeConstruct() override;
+	
+	int32 GetColumnCount(FName columnName);
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+	//ÄÄÆ÷³ÍÆ®
+	UPROPERTY(meta = (BindWidget), meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class USizeBox> SizeBox;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+	UPROPERTY(meta = (BindWidget), meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UScrollBox> ScrollBox;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+	UPROPERTY(meta = (BindWidget), meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UGridPanel> GridPanel;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	//¸â¹öº¯¼ö
+	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<UUserWidget> CustomButtonWidget;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"))
 	ECustomizeUIType CustomizeType;
 
-private:
 	UPROPERTY()
 	TObjectPtr<UUserWidget> WidgetInstance;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UDataTable> CustomizeDataTable;
+
+
 
 	TArray<UCustomButtonWidget*> Buttons;
 

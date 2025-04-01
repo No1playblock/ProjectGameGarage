@@ -10,10 +10,10 @@ void UAnimNotify_LeftAttackStart::Notify(USkeletalMeshComponent* MeshComp, UAnim
 	//UE_LOG(LogTemp, Warning, TEXT("AttackStartNotify"));
 	if (MeshComp)
 	{
-		APlayableCharacter* player = Cast<APlayableCharacter>(MeshComp->GetOwner());
-		if (player)
+		APlayableCharacter* Player = Cast<APlayableCharacter>(MeshComp->GetOwner());
+		if (Player)
 		{
-			player->GetLeftHandCollision()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+			Player->GetLeftHandCollision()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 		}
 
 	}

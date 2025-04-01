@@ -21,5 +21,5 @@ void UCrosshairWidget::ChangeZoomState(bool IsZoom)
 
 void UCrosshairWidget::SetTimerText(FText text)
 {
-	timerText->SetText(text);
+	TimerText->SetText(text);
 }

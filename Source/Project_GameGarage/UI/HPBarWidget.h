@@ -15,20 +15,18 @@ class PROJECT_GAMEGARAGE_API UHPBarWidget : public UGGUserWidget
 {
 	GENERATED_BODY()
 	
-	virtual void NativeConstruct() override;
-
-
 public:
 	FORCEINLINE void SetMaxHp(float NewMaxHp) { MaxHp = NewMaxHp; }
 
-	UFUNCTION(BlueprintCallable)
-	void SetHPBar(float hp);
+	void SetHPBar(float Hp);
 
-protected:
+private:
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
-	TObjectPtr<class UCustomHealthBarWidget> NewHPBar;
+	virtual void NativeConstruct() override;
+
+	UPROPERTY(EditAnyWhere, meta = (BindWidget), meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UCustomHealthBarWidget> NewHpBar;
+
 	float MaxHp;
 
-	
 };

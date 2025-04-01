@@ -5,6 +5,7 @@
 #include "Components/ProgressBar.h"
 #include "Interface/CharacterWidgetInterface.h"
 #include "UI/CustomHealthBarWidget.h"
+
 void UHPBarWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
@@ -15,8 +16,7 @@ void UHPBarWidget::NativeConstruct()
 		CharacterWidget->SetupCharacterWidget(this);
 	}
 }
-
-void UHPBarWidget::SetHPBar(float hp)
+void UHPBarWidget::SetHPBar(float Hp)
 {
-	NewHPBar->UpdateHealth(hp / 100.0f);
+	NewHpBar->UpdateHealth(Hp / 100.0f);
 }

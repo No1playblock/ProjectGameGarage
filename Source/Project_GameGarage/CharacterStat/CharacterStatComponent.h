@@ -15,26 +15,28 @@ class PROJECT_GAMEGARAGE_API UCharacterStatComponent : public UActorComponent
 	GENERATED_BODY()
 
 
+public:
+
+	//Getter
+	FORCEINLINE float GetMaxHp() { return MaxHp; }
+
+	FORCEINLINE float GetCurrentHp() { return CurrentHp; }
+
+
+	float ApplyDamage(float Damage);
+
+	FOnHpZeroDelegate OnHpZero;
+	FOnHpChangedDelegate OnHpChanged;
+
 protected:
 
 	UCharacterStatComponent();
 
-	// Called when the game starts
 	virtual void BeginPlay() override;
 		
 
-public:
-	FOnHpZeroDelegate OnHpZero;
-	FOnHpChangedDelegate OnHpChanged;
-
-	FORCEINLINE float GetMaxHp() { return MaxHp; }
-	FORCEINLINE float GetCurrentHp() { return CurrentHp; }
-
-	float ApplyDamage(float Damage);
-
-
-protected:
 	void SetHp(float NewHp);
+
 
 	UPROPERTY(VisibleInstanceOnly, Category = Stat)
 	float MaxHp;
@@ -44,3 +46,4 @@ protected:
 		
 
 };
+

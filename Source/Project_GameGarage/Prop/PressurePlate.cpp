@@ -30,15 +30,13 @@ void APressurePlate::BeginPlay()
 void APressurePlate::PressButton(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, 
 										int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	UE_LOG(LogTemp, Warning, TEXT("%s was pressed!"), *GetName());
 	SwitchCube->SetMaterial(0, SwitchPushMaterial);
 	OnButtonPressed.Broadcast(this, true); // 버튼이 눌렸음을 알림
 }
 
 void APressurePlate::UnPressButton(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	UE_LOG(LogTemp, Warning, TEXT("%s was Unpressed!"), *GetName());
-	
+
 	SwitchCube->SetMaterial(0, SwitchDefaultMaterial);
 	OnButtonPressed.Broadcast(this, false); // 버튼이 눌렸음을 알림
 }

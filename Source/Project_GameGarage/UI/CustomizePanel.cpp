@@ -50,10 +50,7 @@ void UCustomizePanel::ButtonClicked(UCustomButtonWidget* NewButton)
 	SelectedButton = NewButton;
 
 }
-UCustomButtonWidget* UCustomizePanel::GetSelectedButton()
-{
-	return SelectedButton;
-}
+
 int32 UCustomizePanel::GetColumnCount(FName ColumnName)
 {
 
@@ -153,9 +150,4 @@ void UCustomizePanel::SetSelectedButton(int32 index)		//playerController에서 Sav
 	//Create에서 넣으면 index를 받기전에 widget이 생성되어서 나중에 이렇게 줘야됨.
 	Buttons[index]->OnButtonClicked();
 	SelectedButtonIndex = index;
-}
-int32 UCustomizePanel::GetSelectedButtonIndex()
-{
-	
-	return SelectedButtonIndex;
 }

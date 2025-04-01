@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+    // Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -23,7 +23,32 @@ class PROJECT_GAMEGARAGE_API UCustomButtonWidget : public UUserWidget
 	GENERATED_BODY()
 	
 public:
+
+    // 소유자 설정 함수
+    UFUNCTION()
+    void SetOwner(UCustomizePanel* NewOwner);
+
+    UFUNCTION()
+    void SetPreviewTexture(UTexture2D* Texture);
+
+    UFUNCTION()
+    virtual void OnButtonClicked();
+
+    UFUNCTION()
+    virtual void SetClicked(bool bIsClicked);
+protected:
+
     virtual void NativeConstruct() override;
+
+    // 클릭 시 보더 효과
+    UPROPERTY(EditAnyWhere, meta = (BindWidget))
+    TObjectPtr<UBorder> ClickedBorder;
+
+    
+private:
+
+    UFUNCTION()
+    void SetButtonImage(UTexture2D* NewImage);
 
     // 버튼 클릭 이벤트 핸들러
     UFUNCTION()
@@ -38,52 +63,25 @@ public:
     UFUNCTION()
     void OnButtonUnhovered();
 
-    UFUNCTION()
-    virtual void OnButtonClicked();
-
-
     void SetCharacterImageColorAndOpacity(FLinearColor NewColor);
 
-public:
-
-
-    // 클릭 상태 설정 함수
-    UFUNCTION(BlueprintCallable)
-    virtual void SetClicked(bool bIsClicked);
-
-    // 소유자 설정 함수
-    UFUNCTION(BlueprintCallable)
-    void SetOwner(UCustomizePanel* NewOwner);
-
-    UFUNCTION()
-    void SetButtonImage(UTexture2D* NewImage);
-
-    UFUNCTION()
-    void SetPreviewTexture(UTexture2D* texture);
-
-protected:
-
-
-    UPROPERTY(EditAnyWhere, BlueprintReadWrite, meta = (BindWidget))
+    //컴포넌트
+    UPROPERTY(EditAnyWhere, meta = (BindWidget))
     TObjectPtr<USizeBox> SizeBox;
 
-    UPROPERTY(EditAnyWhere, BlueprintReadWrite, meta = (BindWidget))
+    UPROPERTY(EditAnyWhere, meta = (BindWidget))
     TObjectPtr<UButton> Button;
 
-    // PreviewImage: 띄우는 UI
-    UPROPERTY(EditAnyWhere, BlueprintReadWrite, meta = (BindWidget))
+    // 띄우는 UI Image
+    UPROPERTY(EditAnyWhere, meta = (BindWidget))
     TObjectPtr<UImage> PreviewImage;
 
-    // ClickedBorder: 클릭 시 보더 효과
-    UPROPERTY(EditAnyWhere, BlueprintReadWrite, meta = (BindWidget))
-    TObjectPtr<UBorder> ClickedBorder;
-
-    //이미지를 담을 변수
-    UPROPERTY(EditAnyWhere, BlueprintReadWrite, Category = "Appearance", meta = (AllowPrivateAccess = "true"))
+    //멤버변수
+    UPROPERTY()
     TObjectPtr<UTexture2D> PreviewTexture;
 
-    //// Owner: 상위 WBP_CustomizeCharacter 위젯을 가리키는 변수
-    UPROPERTY(BlueprintReadWrite, Category = "Owner")
+    UPROPERTY()
+    // 상위 WBP_CustomizeCharacter 위젯을 가리키는 변수
     TObjectPtr<UCustomizePanel> Owner;
-
+    
 };

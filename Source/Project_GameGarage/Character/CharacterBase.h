@@ -23,22 +23,24 @@ protected:
 
 	ACharacterBase();
 
+	//메소드
 	virtual void PostInitializeComponents() override;
-	
+
+	virtual void SetupCharacterWidget(class UGGUserWidget* InUserWidget);
+
+	virtual void SetDead();
+
+	void PlayDeadAnimation();
+
+	//컴포넌트
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UCharacterStatComponent> Stat;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UWidgetComponent> HPWidget;
-
-	virtual void SetupCharacterWidget(class UGGUserWidget* InUserWidget) override;
-
+	
+	//멤버변수
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Stat, Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UAnimMontage> DeadMontage;
 
-
-	virtual void SetDead();
-
-	void PlayDeadAnimation();
-	
 };

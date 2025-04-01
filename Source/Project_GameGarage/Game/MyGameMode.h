@@ -23,9 +23,10 @@ class PROJECT_GAMEGARAGE_API AMyGameMode : public AGameModeBase
 	GENERATED_BODY()
 	
 protected:
-	virtual void PostLogin(APlayerController* NewPlayer) override;
+	
+	virtual void BeginPlay() override;
 
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION()
 	void TimerStart();
 
 	int Timer;
@@ -33,26 +34,26 @@ protected:
 	class AMyGameState* MyGS;
 
 
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-
 private:
 
-	//switchManager
-	UPROPERTY()
-	TArray<APressurePlate*> Buttons;
+	virtual void PostLogin(APlayerController* NewPlayer) override;
 
-	UPROPERTY()
-	TMap<APressurePlate*, bool> ButtonStates;
+
+	//SwitchManager
+	
 
 	UFUNCTION()
 	void OnButtonPressed(APressurePlate* Button, bool bIsPressed);
 
 	void CheckAllButtonsPressed();
 
-	//roundManger
-	FTimerHandle Timerhandle;
+	UPROPERTY()
+	TArray<APressurePlate*> Buttons;
+
+	UPROPERTY()
+	TMap<APressurePlate*, bool> ButtonStates;
+	//RoundManger
+	
 
 	void TimerProgress();
 	void TimerStop();
@@ -63,11 +64,11 @@ private:
 
 	ERoundType RoundType;
 	
+	FTimerHandle Timerhandle;
+
 	int RoundCnt = 0;
 
-
 	bool bGameStart;
-private:
 
 	TArray<class APlayableCharacter*> PlayerArr;
 

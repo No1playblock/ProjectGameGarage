@@ -22,17 +22,7 @@ public:
     void UpdateHealth(float NewHealthPercentage);
 
 private:
-    // 체력 비율
-    float CurrentHealth;
-    float TargetHealth;
-
-    // 타임라인을 사용해 부드럽게 보간
-    float InterpolationSpeed = 5.0f;
-
-    // 깜빡임 상태
-    bool bIsCritical = false;
-    float BlinkTimer = 0.0f;
-
+    
     // 색상 계산
     FLinearColor GetHealthColor() const;
 
@@ -44,4 +34,14 @@ private:
         const FSlateRect& MyCullingRect, FSlateWindowElementList& OutDrawElements,
         int32 LayerId, const FWidgetStyle& InWidgetStyle, bool bParentEnabled) const override;
 
+    // 체력 비율
+    float CurrentHealth;
+    float TargetHealth;
+
+    // 타임라인을 사용해 부드럽게 보간
+    float InterpolationSpeed = 5.0f;
+
+    // 깜빡임 상태
+    bool bIsCritical = false;
+    float BlinkTimer = 0.0f;
 };

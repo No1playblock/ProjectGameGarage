@@ -15,19 +15,19 @@ class PROJECT_GAMEGARAGE_API UCustomHealthBarWidget : public UWidget
 {
 	GENERATED_BODY()
 
-	virtual void ReleaseSlateResources(bool bReleaseChildren) override;
-protected:
-
-	float CurrentHealth = 1.0f;
-	
-
-	virtual TSharedRef<SWidget> RebuildWidget() override;
-
-	TSharedPtr<class SHealthBar> MyCustomHealthBar;
-
 public:
 	// 체력 업데이트 함수
 	UFUNCTION(BlueprintCallable, Category = "Health")
 	void UpdateHealth(float HealthPercentage);
 	
+private:
+
+	virtual void ReleaseSlateResources(bool bReleaseChildren) override;
+
+	virtual TSharedRef<SWidget> RebuildWidget() override;
+
+
+	float CurrentHealth = 1.0f;
+	
+	TSharedPtr<class SHealthBar> MyCustomHealthBar;
 };

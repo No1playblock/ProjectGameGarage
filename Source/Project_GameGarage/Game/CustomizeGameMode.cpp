@@ -18,11 +18,9 @@ void ACustomizeGameMode::PostLogin(APlayerController* NewPlayer)
 {
     Super::PostLogin(NewPlayer);
 
-    GG_LOG(LogTemp, Warning, TEXT("ControllerName: %s"), *NewPlayer->GetFName().ToString());
-    UE_LOG(LogTemp, Warning, TEXT("PostLogin"));
     if (HasAuthority())
     {
-        UE_LOG(LogTemp, Warning, TEXT("HasAuthority"));
+
         if (!UGameplayStatics::DoesSaveGameExist(TEXT("PlayerSaveSlot"), 0))		//없으면 생성
         {
             UGameplayStatics::CreateSaveGameObject(USaveFile::StaticClass());
@@ -35,7 +33,7 @@ void ACustomizeGameMode::PostLogin(APlayerController* NewPlayer)
             APlayableCharacter* PlayerCharacter = Cast<APlayableCharacter>(NewPlayer->GetPawn());
             if (PlayerCharacter)
             {
-                UE_LOG(LogTemp, Warning, TEXT("Server_LoadAndApplySavedData"));
+                
                 PlayerCharacter->Server_LoadAndApplySavedData(SaveData->SaveSkin, SaveData->SaveEmo);
 
             }

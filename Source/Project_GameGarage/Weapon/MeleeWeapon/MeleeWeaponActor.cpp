@@ -17,25 +17,23 @@ AMeleeWeaponActor::AMeleeWeaponActor()
 	RootComponent = meleeComponent;
 	
 
-
-	pickUpComponent = CreateDefaultSubobject<UPickUpComponent>(TEXT("PickUpComponent"));
-	pickUpComponent->SetupAttachment(meleeComponent);
-	pickUpComponent->OnPickUp.AddDynamic(this, &AMeleeWeaponActor::PickUpWeapon);
+	PickUpComponent = CreateDefaultSubobject<UPickUpComponent>(TEXT("PickUpComponent"));
+	PickUpComponent->SetupAttachment(meleeComponent);
+	PickUpComponent->OnPickUp.AddDynamic(this, &AMeleeWeaponActor::PickUpWeapon);
 
 	SetReplicates(true);
-	//SetReplicateMovement(true);
 
-	weapontype = EWeaponType::Melee;
+	Weapontype = EWeaponType::Melee;
 }
 
 void AMeleeWeaponActor::OverlapmeleeComponent(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	if (GetAttachParentActor() != OtherActor && OtherActor != this)	//서버에서 검증할때 히트한 위치 가져올 수 있음.
 	{
-		if (!bisHit)
+		if (!bIsHit)
 		{
-			bisHit = true;
-			UE_LOG(LogTemp, Warning, TEXT("RealHit"));
+			bIsHit = true;
+
 			Cast<APlayableCharacter>(OtherActor)->TakeDamage(40.0f);
 		}
 		
@@ -46,39 +44,17 @@ void AMeleeWeaponActor::OverlapmeleeComponent(UPrimitiveComponent* OverlappedCom
 void AMeleeWeaponActor::PickUpWeapon(APlayableCharacter* PickUpCharacter)
 {
 
-	if (HasAuthority())
-	{
-		UE_LOG(LogTemp, Warning, TEXT("pickup"));
-	}
-	
 	if (meleeComponent->AttachWeapon(PickUpCharacter))
 	{
-		//SetOwner(PickUpCharacter);
 		SetOwner(PickUpCharacter->GetController());
 		PickUpCharacter->SetEquippedWeapon(this);
-		//Cast<>(PickUpCharacter->GetMesh()->GetAnimInstance())->HasWeapon(true);
-		UE_LOG(LogTemp, Warning, TEXT("PickUp"));
-		UE_LOG(LogTemp, Warning, TEXT("%d"), weapontype);
-
 	}
 }
 
 
-// Called when the game starts or when spawned
 void AMeleeWeaponActor::BeginPlay()
 {
 	Super::BeginPlay();
 	meleeComponent->OnComponentBeginOverlap.AddDynamic(this, &AMeleeWeaponActor::OverlapmeleeComponent);
 }
 
-// Called every frame
-void AMeleeWeaponActor::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-	
-}
-UMeleeWeaponComponent* AMeleeWeaponActor::GetMeleeComponent()
-{
-	return meleeComponent;
-}

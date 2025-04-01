@@ -13,27 +13,24 @@ class PROJECT_GAMEGARAGE_API AWeaponSpawner : public AActor
 {
 	GENERATED_BODY()
 	
-public:	
-	// Sets default values for this actor's properties
+
+private:
+
 	AWeaponSpawner();
 
-protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 	UFUNCTION()
 	void Spawn();
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TSubclassOf<AWeaponActor> weapon;
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<AWeaponActor> Weapon;
+
+	UPROPERTY(EditAnywhere)
+	float SpawnDelay;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float spawnDelay;
+	UPROPERTY()
+	TWeakObjectPtr<AWeaponActor> WeaponInstance;
 
-private:
-
-	TWeakObjectPtr<AWeaponActor> weaponInstance;
-
-
-	FTimerHandle spawnTimerHandle;
+	FTimerHandle SpawnTimerHandle;
 };

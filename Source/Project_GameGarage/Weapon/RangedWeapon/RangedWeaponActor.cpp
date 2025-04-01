@@ -15,39 +15,23 @@ ARangedWeaponActor::ARangedWeaponActor()
 	RangedComponent = CreateDefaultSubobject<URangedWeaponComponent>(TEXT("RangedWeaponComponent"));
 	RootComponent = RangedComponent;
 
-	pickUpComponent = CreateDefaultSubobject<UPickUpComponent>(TEXT("PickUpComponent"));
-	pickUpComponent->SetupAttachment(RangedComponent);
+	PickUpComponent = CreateDefaultSubobject<UPickUpComponent>(TEXT("PickUpComponent"));
+	PickUpComponent->SetupAttachment(RangedComponent);
 
-	pickUpComponent->OnPickUp.AddDynamic(this, &ARangedWeaponActor::PickUpWeapon);
+	PickUpComponent->OnPickUp.AddDynamic(this, &ARangedWeaponActor::PickUpWeapon);
 
 
-	weapontype = EWeaponType::Ranged;
+	Weapontype = EWeaponType::Ranged;
 }
 
 void ARangedWeaponActor::PickUpWeapon(APlayableCharacter* PickUpCharacter)
 {
-	//UE_LOG(LogTemp, Warning, TEXT("pickup"));
+
 	if (RangedComponent->AttachWeapon(PickUpCharacter))
 	{
 		PickUpCharacter->SetEquippedWeapon(this);
 		SetOwner(PickUpCharacter);
 
-		//Cast<>(PickUpCharacter->GetMesh()->GetAnimInstance())->HasWeapon(true);
-		//UE_LOG(LogTemp, Warning, TEXT("Attach"));
 	}
-}
-
-
-// Called when the game starts or when spawned
-void ARangedWeaponActor::BeginPlay()
-{
-	Super::BeginPlay();
-
-}
-
-// Called every frame
-void ARangedWeaponActor::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
 }
 

@@ -31,17 +31,14 @@ protected:
     virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Character)
-    TObjectPtr<class APlayableCharacter> player;
+    TObjectPtr<class APlayableCharacter> Player;
 
-    
-
-  
-    
 
     /** 이동 속도 */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
     float Speed;
 
+    UPROPERTY()
     TObjectPtr<UAnimSequenceBase> BaseIdle;
 
 };

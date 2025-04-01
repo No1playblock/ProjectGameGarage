@@ -17,13 +17,13 @@ UCLASS()
 class PROJECT_GAMEGARAGE_API UCustomizingWidget : public UUserWidget
 {
 	GENERATED_BODY()
-protected:
+
+public:
+    void InitSelectedButton(int32 SkinIndex, int32 EmoIndex);
+
+private:
+
     virtual void NativeConstruct() override;
-
-    void InitializeButtonArrays();
-
-    void LoadSaveGame();
-
 
     UFUNCTION()
     void OnEmoBtnClicked();
@@ -31,41 +31,29 @@ protected:
     UFUNCTION()
     void OnSkinBtnClicked();
 
-    void SetClickType(UButton* ClickBtn);
-
     UFUNCTION()
     void OnSaveButtonClicked();
 
-    
+    void SetClickType(UButton* ClickBtn);
 
-    // Emo 및 Skin 패널 버튼
-    UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+    // 컴포넌트
+    UPROPERTY(meta = (BindWidget), meta = (AllowPrivateAccess = "true"))
     TObjectPtr<UButton> EmoBtn;
 
-    UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+    UPROPERTY(meta = (BindWidget), meta = (AllowPrivateAccess = "true"))
     TObjectPtr<UButton> SkinBtn;
 
-    UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+    UPROPERTY(meta = (BindWidget), meta = (AllowPrivateAccess = "true"))
     TObjectPtr<UCustomizePanel> SkinPanel;
     
-    UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+    UPROPERTY(meta = (BindWidget), meta = (AllowPrivateAccess = "true"))
     TObjectPtr<UCustomizePanel> EmoPanel;
     
-    // Save 버튼
-    UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+    UPROPERTY(meta = (BindWidget), meta = (AllowPrivateAccess = "true"))
     TObjectPtr<UButton> SaveBtn;
 
-    // SkinButton
-    int userIndex;
-
-
-    UPROPERTY(BlueprintReadWrite, Category = "Selection")
+    //멤버변수
+    UPROPERTY()
     TObjectPtr<UButton> SelectedTypeButton;
 
-    // Save Game Object
-    /*UPROPERTY(BlueprintReadWrite, Category = "Save Game")
-    TObjectPtr<USaveFile> SaveGameObject;*/
-
-public:
-    void InitSelectedButton(int32 SkinIndex, int32 EmoIndex);
 };
