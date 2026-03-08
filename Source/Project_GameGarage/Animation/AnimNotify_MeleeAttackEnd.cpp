@@ -17,9 +17,11 @@ void UAnimNotify_MeleeAttackEnd::Notify(USkeletalMeshComponent* MeshComp, UAnimS
 		if (Player)
 		{
 			AMeleeWeaponActor* MeleeWeapon = Cast<AMeleeWeaponActor>(Player->GetEquippedWeapon());
-
-			MeleeWeapon->GetMeleeComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-			MeleeWeapon->bIsHit = false;
+			if (MeleeWeapon)
+			{
+				MeleeWeapon->GetMeleeComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+				MeleeWeapon->bIsHit = false;
+			}
 			
 			//UE_LOG(LogTemp, Warning, TEXT("AttackEnd"));
 		}

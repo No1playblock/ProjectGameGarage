@@ -16,7 +16,12 @@ void UAnimNotify_MeleeAttackStart::Notify(USkeletalMeshComponent* MeshComp, UAni
 		APlayableCharacter* Player = Cast<APlayableCharacter>(MeshComp->GetOwner());
 		if (Player)
 		{
-			Cast<AMeleeWeaponActor>(Player->GetEquippedWeapon())->GetMeleeComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+			AMeleeWeaponActor* MeleeWeapon = Cast<AMeleeWeaponActor>(Player->GetEquippedWeapon());
+			if (MeleeWeapon)
+			{
+				MeleeWeapon->GetMeleeComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+				MeleeWeapon->bIsHit = false;
+			}
 			
 		}
 		
