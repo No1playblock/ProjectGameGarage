@@ -29,14 +29,18 @@ void UWeaponAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		if (bIsWeapon)
 		{
 			AWeaponActor* equipWeapon = Player->GetEquippedWeapon();
-			if (equipWeapon->GetWeaponType() == EWeaponType::Melee)
+			if (equipWeapon)
 			{
-				Idle = Cast<AMeleeWeaponActor>(equipWeapon)->GetMeleeComponent()->GetIdleAnim();
+				if (equipWeapon->GetWeaponType() == EWeaponType::Melee)
+				{
+					Idle = Cast<AMeleeWeaponActor>(equipWeapon)->GetMeleeComponent()->GetIdleAnim();
+				}
+				else if (equipWeapon->GetWeaponType() == EWeaponType::Ranged)
+				{
+					Idle = Cast<ARangedWeaponActor>(equipWeapon)->GetRangedComponent()->GetIdleAnim();
+				}
 			}
-			else if (equipWeapon->GetWeaponType() == EWeaponType::Ranged)
-			{
-				Idle = Cast<ARangedWeaponActor>(equipWeapon)->GetRangedComponent()->GetIdleAnim();
-			}
+			
 		}
 		else
 		{
