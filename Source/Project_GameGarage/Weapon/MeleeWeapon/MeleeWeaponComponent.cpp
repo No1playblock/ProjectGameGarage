@@ -25,33 +25,32 @@ UMeleeWeaponComponent::UMeleeWeaponComponent()
 {
 	// Default offset from the character location for projectiles to spawn
 	MuzzleOffset = FVector(100.0f, 0.0f, 10.0f);
-	SetIsReplicated(true);  // 
+	SetIsReplicated(true);  //
+
+	SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Ignore);
 }
 
-bool UMeleeWeaponComponent::AttachWeapon(APlayableCharacter* TargetCharacter)		//ÇÃ·¹ÀÌ¾î¿¡°Ô ¹«±â¸¦ ÀåÂøÇÏ´Â ¸Ş¼Òµå
+bool UMeleeWeaponComponent::AttachWeapon(APlayableCharacter* TargetCharacter)		//í”Œë ˆì´ì–´ê°€ ë¬´ê¸°ë¥¼ ì¥ì°©í•˜ëŠ” ë©”ì†Œë“œ
 {
+	if (!TargetCharacter) return false;
+
 	Character = TargetCharacter;
-	Character->SetHasWeapon(true);				//WeaponÀ¸·Î µ¤¾î¾º¿ì±â À§ÇÔ.
+	Character->SetHasWeapon(true);				//Weaponìƒíƒœë¥¼ ë³€ê²½í•´ ì¤Œ.
 
 	TArray<AActor*> ChildActors;
-	Character->GetAttachedActors(ChildActors);	//ºÙ¾îÀÖ´Â ÀÚ½Ä °¡Á®¿Í¼­ 
+	Character->GetAttachedActors(ChildActors);	//ë¶€ì°©ë˜ì–´ìˆëŠ” ìì‹ ì•¡í„°ì—ì„œ
 
 	for (AActor* ChildActor : ChildActors)
 	{
-		// °¢ ChildActor¿¡ ´ëÇØ ÀÛ¾÷ ¼öÇà
-		ChildActor->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);		//´Ù ¶¼°í
-		ChildActor->Destroy();			//»èÁ¦
-		// Ä«¸Ş¶ó À§Ä¡ ¿ø»óº¹±¸
+		// ê° ChildActorì— ëŒ€í•œ ì‘ì—… ìˆ˜í–‰
+		ChildActor->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);		//ë–¼ì–´ ëƒ„
+		ChildActor->Destroy();			//íŒŒê´´
+		// ì¹´ë©”ë¼ ìœ„ì¹˜ ì›ìƒë³µêµ¬
 		TargetCharacter->MoveCameraToDefaultPosition();
 	}
 
-	if (Character == nullptr)
-	{
-		return false;
-	}
-
 	// add the weapon as an instance component to the character
-	Character->AddInstanceComponent(this);					//ÇÃ·¹ÀÌ¾î¿¡°Ô WeaponComponent¸¦ Ãß°¡ÇØÁØ´Ù.
+	Character->AddInstanceComponent(this);					//í”Œë ˆì´ì–´ì— WeaponComponentë¥¼ ì¶”ê°€í•´ì¤€ë‹¤.
 
 	// Attach the weapon to the First Person Character
 	FAttachmentTransformRules AttachmentRules(EAttachmentRule::KeepRelative, true);
@@ -59,7 +58,7 @@ bool UMeleeWeaponComponent::AttachWeapon(APlayableCharacter* TargetCharacter)		/
 	SetRelativeTransform(RelativeTransform);
 
 	// Set up action bindings
-	if (APlayerController* PlayerController = Cast<APlayerController>(Character->GetController()))		//ÁÂÅ¬¸¯À» ´­·¶À» ¶§ Fire°¡ ÀÛµ¿µÇµµ·Ï
+	if (APlayerController* PlayerController = Cast<APlayerController>(Character->GetController()))		//í”Œë ˆì´ì–´ ì»¨íŠ¸ë¡¤ëŸ¬ê°€ ìˆì„ ë•Œ Fireê°€ ì‘ë™ë˜ë„ë¡
 	{
 		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
 		{
@@ -77,14 +76,19 @@ bool UMeleeWeaponComponent::AttachWeapon(APlayableCharacter* TargetCharacter)		/
 
 void UMeleeWeaponComponent::PressComboCommand()
 {
+	if (!Character) return;
+
+	// ìºë¦­í„°ê°€ ìŠ¤í„´ ìƒíƒœì¼ ê²½ìš° ê³µê²©ì„ ì‹œë„í•˜ì§€ ì•ŠìŒ
+	if (Character->GetbIsStunned()) return;
+
 	if (CurrentCombo == 0)
 	{
 		bIsCombo = true;
 		Server_ComboActionBegin();
-		
+
 		return;
 	}
-	if (!bIsCombo)		//ÄŞº¸°¡ ÁøÇàÁßÀÎ »óÅÂ¸é bhas¸¦ true·Î
+	if (!bIsCombo)		//ì½¤ë³´ê°€ ì§„í–‰ì¤‘ì´ì§€ ì•Šì€ ìƒíƒœë¼ë©´ bHasNextComboCommandë¥¼ falseë¡œ
 	{
 
 		if (Character->HasAuthority())
@@ -110,50 +114,101 @@ void UMeleeWeaponComponent::PressComboCommand()
 void UMeleeWeaponComponent::Server_RequestNextCombo_Implementation(bool bNextCombo)
 {
 	bHasNextComboCommand = bNextCombo;
-	// »óÅÂ¸¦ ¸ğµç Å¬¶óÀÌ¾ğÆ®¿¡ ÀüÆÄ
+	// ìƒíƒœë¥¼ ëª¨ë“  í´ë¼ì´ì–¸íŠ¸ì— ì „ë‹¬
 }
 
 
 void UMeleeWeaponComponent::Server_ComboActionBegin_Implementation()
 {
-	Multicast_PlayAnimation();
-
+	CurrentCombo = 1;
+	OnRep_CurrentCombo();
 	SetComboCheckTimer();
 }
 
 
-void UMeleeWeaponComponent::Multicast_PlayAnimation_Implementation()
+void UMeleeWeaponComponent::OnRep_CurrentCombo()
 {
-	CurrentCombo = 1;
-	//Animation Setting
-	const float AttackSpeedRate = 1.0f;
-	UAnimInstance* AnimInstance = Character->GetMesh()->GetAnimInstance();
-	AnimInstance->Montage_Play(ComboActionMontage, AttackSpeedRate);
+	if (!Character || !Character->GetMesh() || CurrentCombo == 0) return;
 
-	FOnMontageEnded EndDelegate;
-	EndDelegate.BindUObject(this, &UMeleeWeaponComponent::ComboActionEnded);
-	AnimInstance->Montage_SetEndDelegate(EndDelegate, ComboActionMontage);
-}
-
-void UMeleeWeaponComponent::Multicast_JumpToAnimation_Implementation()
-{
 	UAnimInstance* AnimInstance = Character->GetMesh()->GetAnimInstance();
 	if (!AnimInstance) return;
 
-	FName CurrentSection = FName(*FString::Printf(TEXT("%s%d"), *MontageSectionNamePrefix, CurrentCombo));
-	CurrentCombo = FMath::Clamp(CurrentCombo + 1, 1, MaxComboCount);
-	FName NextSection = FName(*FString::Printf(TEXT("%s%d"), *MontageSectionNamePrefix, CurrentCombo));
+	if (CurrentCombo == 1)
+	{
+		// ì²« ë²ˆì§¸ ì½¤ë³´ ì‹œì‘
+		const float AttackSpeedRate = 1.0f;
+		AnimInstance->Montage_Play(ComboActionMontage, AttackSpeedRate);
 
-	AnimInstance->Montage_JumpToSection(NextSection, ComboActionMontage);
+		FOnMontageEnded EndDelegate;
+		EndDelegate.BindUObject(this, &UMeleeWeaponComponent::ComboActionEnded);
+		AnimInstance->Montage_SetEndDelegate(EndDelegate, ComboActionMontage);
+	}
+	else
+	{
+		// ë‹¤ìŒ ì½¤ë³´ ì„¹ì…˜ìœ¼ë¡œ ì í”„
+		FName NextSection = FName(*FString::Printf(TEXT("%s%d"), *MontageSectionNamePrefix, CurrentCombo));
+		AnimInstance->Montage_JumpToSection(NextSection, ComboActionMontage);
+	}
 }
 
 void UMeleeWeaponComponent::ComboActionEnded(UAnimMontage* TargetMontage, bool IsProperlyEnded)
 {
-	
+
 	CurrentCombo = 0;
 	bIsCombo = false;
 
 }
+
+void UMeleeWeaponComponent::StartSimpleAutoSwing(float Interval)
+{
+
+	AActor* MyOwner = GetOwner();
+	if (!MyOwner || !MyOwner->HasAuthority()) return;
+
+	GetWorld()->GetTimerManager().SetTimer(
+		AutoSwingTimerHandle,
+		this,
+		&UMeleeWeaponComponent::ExecuteSimpleAutoSwing,
+		Interval,
+		true
+	);
+}
+
+void UMeleeWeaponComponent::ExecuteSimpleAutoSwing()
+{
+	Server_SimpleAutoSwing();
+}
+
+void UMeleeWeaponComponent::Server_SimpleAutoSwing_Implementation()
+{
+	if (AMeleeWeaponActor* WeaponActor = Cast<AMeleeWeaponActor>(GetOwner()))
+	{
+		WeaponActor->SetIsHit(false);
+	}
+
+	Multicast_SimpleAutoSwing();
+}
+
+void UMeleeWeaponComponent::Multicast_SimpleAutoSwing_Implementation()
+{
+	//GG_LOG(LogGGNetwork, Warning, TEXT("Simple Auto Swing Executed at Time: %f"), GetWorld()->GetGameState()->GetServerWorldTimeSeconds());
+
+	// Characterì™€ Meshê°€ ìœ íš¨í•œì§€ í™•ì¸ (ë„¤íŠ¸ì›Œí¬ ë³µì œ í™•ì¸)
+	if (!Character || !Character->GetMesh()) return;
+
+	UAnimInstance* AnimInstance = Character->GetMesh()->GetAnimInstance();
+	if (!AnimInstance) return;
+
+	if (ComboActionMontage)
+	{
+		AnimInstance->Montage_Play(ComboActionMontage, 1.0f);
+		// ì„¹ì…˜ ì í”„ ì—†ì´ ëª½íƒ€ì£¼ì˜ ì²˜ìŒë¶€í„° ì¬ìƒ
+	}
+	// ì½¤ë³´ ì‹œìŠ¤í…œ ìƒíƒœ ì´ˆê¸°í™” (ë°©í•´ ê¸ˆì§€)
+	CurrentCombo = 0;
+	bIsCombo = false;
+}
+
 void UMeleeWeaponComponent::SetComboCheckTimer()
 {
 	int32 ComboIndex;
@@ -164,7 +219,9 @@ void UMeleeWeaponComponent::SetComboCheckTimer()
 	else
 		ComboIndex = CurrentCombo - 1;
 
-	//ComboEffectiveTimeµ¿¾È TImer ½ÇÇàÀÌ¹Ç·Î °¢ Comboº° ½Ã°£ÀÌ µé¾î°¨
+	//ComboEffectiveTimeì—ì„œ Timer ì„¤ì •ì´ë¯€ë¡œ ê° Comboì˜ ì‹œê°„ì— ë§
+	if (ComboIndex >= EffectiveFrameCount.Num()) return;
+
 	const float AttackSpeedRate = 1.0f;
 	float ComboEffectiveTime = (EffectiveFrameCount[ComboIndex] / FrameRate) / AttackSpeedRate;
 
@@ -178,10 +235,12 @@ void UMeleeWeaponComponent::SetComboCheckTimer()
 
 void UMeleeWeaponComponent::ComboCheck()
 {
+	if (!Character) return;
 
 	if (bHasNextComboCommand)
 	{
-		Multicast_JumpToAnimation();
+		CurrentCombo = FMath::Clamp(CurrentCombo + 1, 1, (int32)MaxComboCount);
+		OnRep_CurrentCombo();
 
 		SetComboCheckTimer();
 
@@ -193,7 +252,7 @@ void UMeleeWeaponComponent::ComboCheck()
 }
 
 
-void UMeleeWeaponComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)			
+void UMeleeWeaponComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	if (Character == nullptr)
 	{
@@ -214,5 +273,6 @@ void UMeleeWeaponComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(UMeleeWeaponComponent, bHasNextComboCommand);
 	DOREPLIFETIME(UMeleeWeaponComponent, CurrentCombo);
+	DOREPLIFETIME(UMeleeWeaponComponent, Character);
 }
 

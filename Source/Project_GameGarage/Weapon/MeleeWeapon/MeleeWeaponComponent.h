@@ -8,7 +8,7 @@
 #include "MeleeWeaponComponent.generated.h"
 
 /**
- * 
+ *
  */
 class APlayableCharacter;
 
@@ -16,20 +16,30 @@ UCLASS(Blueprintable, BlueprintType, ClassGroup = (Custom), meta = (BlueprintSpa
 class PROJECT_GAMEGARAGE_API UMeleeWeaponComponent : public	UStaticMeshComponent
 {
 	GENERATED_BODY()
-	
+
 public:
 
 	FORCEINLINE UAnimSequence* GetIdleAnim() const { return IdleAnimation; }
 
-
 	bool AttachWeapon(APlayableCharacter* TargetCharacter);
+
+	UFUNCTION(BlueprintCallable)
+	void StartSimpleAutoSwing(float Interval = 2.0f);
 
 private:
 
 	UMeleeWeaponComponent();
 
-	//About ComboAction
+	//ÏΩ§Î≥¥ Ïï°ÏÖò
 	void PressComboCommand();
+
+	void ExecuteSimpleAutoSwing();
+
+	UFUNCTION(Server, Reliable)
+	void Server_SimpleAutoSwing();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_SimpleAutoSwing();
 
 	UFUNCTION(Server, Reliable)
 	void Server_ComboActionBegin();
@@ -38,12 +48,8 @@ private:
 	UFUNCTION(Server, Reliable)
 	void Server_RequestNextCombo(bool bNextCombo);
 
-	UFUNCTION(NetMulticast, Reliable)
-	void Multicast_PlayAnimation();
-
-	UFUNCTION(NetMulticast, Reliable)
-	void Multicast_JumpToAnimation();
-
+	UFUNCTION()
+	void OnRep_CurrentCombo();
 
 	void ComboActionEnded(UAnimMontage* TargetMontage, bool IsProperlyEnded);
 
@@ -60,7 +66,7 @@ private:
 	UPROPERTY(EditAnywhere, Category = Animation)
 	TObjectPtr<class UAnimMontage> ComboActionMontage;
 
-	UPROPERTY(Replicated)
+	UPROPERTY(ReplicatedUsing = OnRep_CurrentCombo)
 	int32 CurrentCombo = 0;
 
 	bool bIsCombo;
@@ -71,9 +77,11 @@ private:
 
 	FTimerHandle ComboTimerHandle;
 
+	FTimerHandle AutoSwingTimerHandle;
 
-	//∏‚πˆ∫Øºˆ
 
+	//Ï∫êÎ¶≠ÌÑ∞
+	UPROPERTY(Replicated)
 	APlayableCharacter* Character;
 
 	UPROPERTY(EditAnywhere, Category = "Animation")
@@ -109,5 +117,5 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Combo")
 	TArray<float> EffectiveFrameCount;
-	
+
 };
