@@ -33,15 +33,18 @@ protected:
 	UCharacterStatComponent();
 
 	virtual void BeginPlay() override;
-		
+	
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	void SetHp(float NewHp);
 
+	UFUNCTION()
+	void OnRep_CurrentHp();
 
 	UPROPERTY(VisibleInstanceOnly, Category = Stat)
 	float MaxHp;
 
-	UPROPERTY(Transient, VisibleInstanceOnly, Category = Stat)
+	UPROPERTY(Transient, ReplicatedUsing = OnRep_CurrentHp, VisibleInstanceOnly, Category = Stat)
 	float CurrentHp;
 		
 
