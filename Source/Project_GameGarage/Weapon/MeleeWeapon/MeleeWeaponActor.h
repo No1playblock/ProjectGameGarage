@@ -19,11 +19,17 @@ class PROJECT_GAMEGARAGE_API AMeleeWeaponActor : public AWeaponActor
 	GENERATED_BODY()
 
 public:	
-
+	UFUNCTION(BlueprintCallable)
 	FORCEINLINE UMeleeWeaponComponent* GetMeleeComponent() { return meleeComponent; }
 
-	//�浹 �ѹ��� Ȯ���ϱ� ���ؼ�
+	//충돌 한번만 확인하기 위해서
 	bool bIsHit;
+
+	FORCEINLINE void SetIsHit(bool bNewIsHit) { bIsHit = bNewIsHit; }
+
+	// 더미/AI용 강제 장착 (PickUpComponent 없이 직접 장착)
+	UFUNCTION(BlueprintCallable)
+	void ForceEquip(APlayableCharacter* TargetCharacter);
 
 private:
 	
