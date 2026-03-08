@@ -14,7 +14,7 @@ class UInputMappingContext;
 class UInputAction;
 class UUserWidget;
 class UMaterialInstance;
-enum EScoreType;
+//enum EScoreType;
 struct FInputActionValue;
 
 UCLASS()
@@ -30,31 +30,31 @@ public:
 
 	void MoveCameraToDefaultPosition();
 
-	void TakeDamage(float damage);
+	void TakeDamage(float Damage);
 
 	UFUNCTION(Server, Reliable)
 	void Server_LoadAndApplySavedData(USkeletalMesh* NewSkin, UMaterialInstance* NewEmotion);
 
 	//Setter
 
-	void SetHasWeapon(bool ISHASWEAPON);
+	void SetHasWeapon(bool bNewHasWeapon);
 
-	FORCEINLINE void SetbCanMove(bool isbool) { bCanMove = isbool; }
+	FORCEINLINE void SetbCanMove(bool bNewCanMove) { bCanMove = bNewCanMove; }
 
 	FORCEINLINE void SetEmoMaterial(UMaterialInstance* EmoMaterial) { GetMesh()->SetMaterial(1, EmoMaterial); }
 
 	FORCEINLINE void SetSkin(USkeletalMesh* Skin) { GetMesh()->SetSkeletalMeshAsset(Skin); }
 
-	FORCEINLINE void SetBisAttacking(bool isattack) { bIsAttacking = isattack; }
+	FORCEINLINE void SetBisAttacking(bool bNewIsAttacking) { bIsAttacking = bNewIsAttacking; }
 
-	FORCEINLINE void SetIsLeftPunch(bool ispunch) { bIsLeftPunch = ispunch; }
+	FORCEINLINE void SetIsLeftPunch(bool bNewIsLeftPunch) { bIsLeftPunch = bNewIsLeftPunch; }
 
-	FORCEINLINE void SetIsRightPunch(bool ispunch) { bIsRightPunch = ispunch; }
+	FORCEINLINE void SetIsRightPunch(bool bNewIsRightPunch) { bIsRightPunch = bNewIsRightPunch; }
 
-	FORCEINLINE void SetEquippedWeapon(AWeaponActor* weapon) { EquippedWeapon = weapon; }
+	FORCEINLINE void SetEquippedWeapon(AWeaponActor* Weapon) { EquippedWeapon = Weapon; }
 
 	//Getter
-	
+
 	FORCEINLINE UCapsuleComponent* GetLeftHandCollision() const { return LeftHandCollision; }
 
 	FORCEINLINE UCapsuleComponent* GetRightHandCollision() const { return RightHandCollision; }
@@ -63,18 +63,31 @@ public:
 
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 
-	//∏‚πˆ∫Øºˆ
+	//Ïû•Ï∞©Îêú Î¨¥Í∏∞
+	UFUNCTION(BlueprintCallable)
 	FORCEINLINE AWeaponActor* GetEquippedWeapon() const { return EquippedWeapon; }
 
 	FORCEINLINE bool GetHasWepaon() const { return bHasWeapon; }
 
 	FORCEINLINE class UUserWidget* GetCrosshairWidgetInstance() const { return CrosshairWidgetInstance; }
 
-	FORCEINLINE bool GetbCanMove() const { return bCanMove; }	
+	FORCEINLINE bool GetbCanMove() const { return bCanMove; }
+
+	FORCEINLINE bool GetbIsParrying() const { return bIsParrying; }
+
+	FORCEINLINE bool GetbIsStunned() const { return bIsStunned; }
+
+	FORCEINLINE bool GetbParryFailed() const { return bParryFailed; }
+
+	void ApplyStun();
+
+	void EndStun();
 
 private:
 
-	//ª˝º∫¿⁄
+	FTimerHandle AutoAttackTimerHandle;
+
+	//ÎÇ¥Î∂Ä Ìï®Ïàò
 	APlayableCharacter();
 
 	virtual void BeginPlay() override;
@@ -103,44 +116,72 @@ private:
 	UFUNCTION()
 	void LeftPunch();
 
-	UFUNCTION(Server, Reliable, WithValidation)
+	UFUNCTION(Server, Reliable)
 	void Server_LeftPunch();
 
-	UFUNCTION(NetMulticast, Reliable, WithValidation)
+	UFUNCTION(NetMulticast, Reliable)
 	void Multicast_LeftPunch();
 
 	//RightPunchFunction
 	UFUNCTION()
 	void RightPunch();
 
-	UFUNCTION(Server, Reliable, WithValidation)
+	UFUNCTION(Server, Reliable)
 	void Server_RightPunch();
 
-	UFUNCTION(NetMulticast, Reliable, WithValidation)
+	UFUNCTION(NetMulticast, Reliable)
 	void Multicast_RightPunch();
 
 	//LeftDodgeFunction
 	UFUNCTION()
 	void LeftDodge();
 
-	UFUNCTION(Server, Reliable, WithValidation)
+	UFUNCTION(Server, Reliable)
 	void Server_LeftDodge();
 
-	UFUNCTION(NetMulticast, Reliable, WithValidation)
+	UFUNCTION(NetMulticast, Reliable)
 	void Multicast_LeftDodge();
 
 	//RightDodgeFunction
 	UFUNCTION()
 	void RightDodge();
 
-	UFUNCTION(Server, Reliable, WithValidation)
+	UFUNCTION(Server, Reliable)
 	void Server_RightDodge();
 
-	UFUNCTION(NetMulticast, Reliable, WithValidation)
+	UFUNCTION(NetMulticast, Reliable)
 	void Multicast_RightDodge();
 
+	//ParryFunction
+	UFUNCTION()
+	void Parry();
 
-	//ƒƒ∆˜≥Õ∆Æ
+	UFUNCTION()
+	void Local_ParryStart();
+
+	UFUNCTION(Server, Reliable)
+	void Server_Parry(float ClientTimestamp);
+
+	void EndParryWindow();
+
+	UFUNCTION()
+	void OnRep_bIsParrying();
+
+	UFUNCTION()
+	void OnRep_bParryFailed();
+
+	void OnParryMontageEnded(UAnimMontage* Montage, bool bInterrupted);
+
+	void OnExecutionMontageEnded(UAnimMontage* Montage, bool bInterrupted);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_ApplyStun();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_EndStun();
+
+
+	//Ïπ¥Î©îÎùºÏª¥Ìè¨ÎÑåÌä∏
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<USpringArmComponent> CameraBoom;
 
@@ -148,7 +189,7 @@ private:
 	TObjectPtr<UCameraComponent> FollowCamera;
 
 
-	//∏‚πˆ∫Øºˆ
+	//UI ÏúÑÏ†Ø
 	UPROPERTY()
 	TObjectPtr<UUserWidget> CrosshairWidgetInstance;
 
@@ -200,6 +241,9 @@ private:
 	UPROPERTY(EditAnywhere, Category = Input, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UInputAction> RightDodgeAction;
 
+	UPROPERTY(EditAnywhere, Category = Input, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UInputAction> ParryAction;
+
 	//AnimMontage
 	UPROPERTY(EditAnywhere, Category = Animation, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UAnimMontage> LeftPunchMontange;
@@ -207,12 +251,27 @@ private:
 	UPROPERTY(EditAnywhere, Category = Animation, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UAnimMontage> RightPunchMontange;
 
+	UPROPERTY(EditAnywhere, Category = Animation, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UAnimMontage> ParryMontage;
+
+	UPROPERTY(EditAnywhere, Category = Animation, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UAnimMontage> ExecutionMontage;
+
+	UPROPERTY(EditAnywhere, Category = Animation, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UAnimMontage> StunMontage;
+
 
 	UPROPERTY(BlueprintReadWrite, Category = Animation, meta = (AllowPrivateAccess = "true"))
 	bool bIsLeftDodge;
 
 	UPROPERTY(BlueprintReadWrite, Category = Animation, meta = (AllowPrivateAccess = "true"))
 	bool bIsRightDodge;
+
+	UPROPERTY(ReplicatedUsing = OnRep_bIsParrying, BlueprintReadWrite, Category = Animation, meta = (AllowPrivateAccess = "true"))
+	bool bIsParrying;
+
+	UPROPERTY(Replicated, BlueprintReadWrite, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	bool bIsStunned;
 
 	bool bIsLeftPunch;
 
@@ -224,9 +283,29 @@ private:
 
 	bool bIshitted;
 
+	UPROPERTY(ReplicatedUsing = OnRep_bParryFailed)
+	bool bParryFailed;
+
+	float ParryGauge;
+
+	UPROPERTY(EditAnywhere, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	float MaxParryGauge = 3.0f;
+
+	UPROPERTY(EditAnywhere, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	float ParryWindowDuration = 0.4f;
+
+	UPROPERTY(EditAnywhere, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	float StunDuration = 5.0f;
+
+	FTimerHandle ParryWindowTimerHandle;
+
+	FTimerHandle StunTimerHandle;
+
+	FTimerHandle StunLogTimerHandle;
 
 	uint8 Score;
 
+	UPROPERTY(Replicated)
 	bool bHasWeapon;
 	
 	float PunchAnimSpeed = 2.0f;

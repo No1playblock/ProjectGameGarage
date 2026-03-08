@@ -49,110 +49,131 @@ APlayableCharacter::APlayableCharacter() :
 	{
 		GetMesh()->SetMaterial(1, CharacterMatRef.Object);
 	}
-	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	//PrimaryActorTick.bCanEverTick = true;
+	
 
-
-
-	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
 
 	LeftHandCollision = CreateDefaultSubobject<UCapsuleComponent>(TEXT("LeftHandCollision"));
-	LeftHandCollision->SetupAttachment(GetMesh(), "hand_l"); // º»ÀÇ ¼ÒÄÏ¿¡ ¿¬°á
-	LeftHandCollision->SetCollisionProfileName(TEXT("OverlapAll")); // Trigger·Î ¼³Á¤
+	LeftHandCollision->SetupAttachment(GetMesh(), "hand_l"); // ì™¼ì† ì†Œì¼“ì— ë¶€ì°©
+	LeftHandCollision->SetCollisionProfileName(TEXT("OverlapAll")); // Triggerë¡œ ì„¤ì •
 	LeftHandCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	LeftHandCollision->OnComponentBeginOverlap.AddDynamic(this, &APlayableCharacter::OnHandCollision);
 
 	RightHandCollision = CreateDefaultSubobject<UCapsuleComponent>(TEXT("RightHandCollision"));
-	RightHandCollision->SetupAttachment(GetMesh(), "hand_r"); // º»ÀÇ ¼ÒÄÏ¿¡ ¿¬°á
-	RightHandCollision->SetCollisionProfileName(TEXT("OverlapAll")); // Trigger·Î ¼³Á¤
+	RightHandCollision->SetupAttachment(GetMesh(), "hand_r"); // ì˜¤ë¥¸ì† ì†Œì¼“ì— ë¶€ì°©
+	RightHandCollision->SetCollisionProfileName(TEXT("OverlapAll")); // Triggerë¡œ ì„¤ì •
 	RightHandCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	RightHandCollision->OnComponentBeginOverlap.AddDynamic(this, &APlayableCharacter::OnHandCollision);
 
-	// Don't rotate when the controller rotates. Let that just affect the camera.
+
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationRoll = false;
 
-	// Configure character movement
-	GetCharacterMovement()->bOrientRotationToMovement = true; // Character moves in the direction of input...	
-	GetCharacterMovement()->RotationRate = FRotator(0.0f, 500.0f, 0.0f); // ...at this rotation rate
+	GetCharacterMovement()->bOrientRotationToMovement = true; 	
+	GetCharacterMovement()->RotationRate = FRotator(0.0f, 500.0f, 0.0f); 
 
-	// Note: For faster iteration times these variables, and many more, can be tweaked in the Character Blueprint
-	// instead of recompiling to adjust them
-	//GetCharacterMovement()->JumpZVelocity = 700.f;
-	//GetCharacterMovement()->AirControl = 0.35f;
+
+	
 	GetCharacterMovement()->MaxWalkSpeed = 500.f;
 	GetCharacterMovement()->MinAnalogWalkSpeed = 20.f;
 	GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
 	GetCharacterMovement()->BrakingDecelerationFalling = 1500.0f;
 
-	/*DefaultCameraPosition = FVector(0.f, 0.f, 130.f);
-	RangedWeaponCameraPosition = FVector(0.f, 60.f, 80.f);*/
 
-	// Create a camera boom (pulls in towards the player if there is a collision)
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(RootComponent);
-	CameraBoom->TargetArmLength = 250.0f; // The camera follows at this distance behind the character	
+	CameraBoom->TargetArmLength = 250.0f; // 
 	CameraBoom->SetRelativeLocation(FVector(0.f, 0.f, 130.f));
-	CameraBoom->bUsePawnControlRotation = true; // Rotate the arm based on the controller
+	CameraBoom->bUsePawnControlRotation = true; // 
 
-	// Create a follow camera
+
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
-	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
+	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); 
 	FollowCamera->SetRelativeRotation(FRotator(0.f, -20.f, 0.f));
-	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
+	FollowCamera->bUsePawnControlRotation = false; 
 
-
-
-	//HP = 100.0f;
 	SetbCanMove(true);
 
-	//HPBar->CreateDefaultSubobject<UWidgetComponent>("HPBar");
 
-
-	/*CameraDefaultFOV = 0.f;
-	CameraZoomedFOV = 60.f;*/
 }
 void APlayableCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	// PlayerMesh¸¦ ¸®ÇÃ¸®ÄÉÀÌ¼Ç¿¡ Ãß°¡
-	//DOREPLIFETIME(APlayableCharacter, HP);
+	// PlayerMeshë¥¼ ë¦¬í”Œë¦¬ì¼€ì´ì…˜ì— ì¶”ê°€
 	DOREPLIFETIME(APlayableCharacter, PlayerMesh);
 	DOREPLIFETIME(APlayableCharacter, PlayerEmo);
+
+	DOREPLIFETIME(APlayableCharacter, bIsParrying);
+	DOREPLIFETIME(APlayableCharacter, bParryFailed);
+	DOREPLIFETIME(APlayableCharacter, bIsStunned);
+	DOREPLIFETIME(APlayableCharacter, bHasWeapon);
 }
 
 void APlayableCharacter::OnHandCollision(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
 	bool bFromSweep, const FHitResult& SweepResult)
 {
+	// ì„œë²„ì—ì„œë§Œ íƒ€ê²© ë° ë°ë¯¸ì§€ íŒì •ì„ ìˆ˜í–‰í•˜ë„ë¡ ê¶Œí•œ ì²´í¬ (í´ë¼ì´ì–¸íŠ¸ëŠ” ì‹œê°ì  ì˜ˆì¸¡ë§Œ ë‹´ë‹¹)
+	if (!HasAuthority()) return;
+
 	bIshitted = true;
-	//ECollisionChannel playerCollisionChannel = ECC_EngineTraceChannel1;
-	if (OtherActor && (OtherActor != this) && (OtherComp->GetCollisionObjectType() == ECC_GameTraceChannel1) && bIsAttacking)		//¸ÂÀº°Å Å¸ÀÔÀÌ Player¸é
+
+	if (OtherActor && OtherComp && (OtherActor != this) && (OtherComp->GetCollisionObjectType() == ECC_GameTraceChannel1) && bIsAttacking)		//ê³µê²© íƒ€ê²Ÿì´ Playerì¼ ë•Œ
 	{
+		APlayableCharacter* Target = Cast<APlayableCharacter>(OtherActor);
+		if (!Target) return;
 
-		if (bIsLeftPunch)		//¾È ¸Â°Ô ÇÏ±â
+		if (bIsLeftPunch && Target->bIsLeftDodge) return;		//ì™¼ìª½ ê³µê²© ì²´í¬
+		if (bIsRightPunch && Target->bIsRightDodge) return;
+
+		// íŒ¨ë§ íŒì •: íƒ€ê²Ÿì´ íŒ¨ë§ ì¤‘ì´ë©´ ê³µê²©ì(this)ì—ê²Œ ê²Œì´ì§€ ì¶”ê°€
+		if (Target->GetbIsParrying())
 		{
-			if (Cast<APlayableCharacter>(OtherActor)->bIsLeftDodge)
-				return;
-		}
-		if (bIsRightPunch)
-		{
-			if (Cast<APlayableCharacter>(OtherActor)->bIsRightDodge)
-				return;
+			bIsAttacking = false;
+			ParryGauge += 1.0f;
+			if (ParryGauge >= MaxParryGauge)
+			{
+				ParryGauge = 0.0f;
+				ApplyStun();
+			}
+			return;
 		}
 
-		// Ãæµ¹ Ã³¸® ·ÎÁ÷
-		bIsAttacking = false;//
-		ensure(Cast<APlayableCharacter>(OtherActor));
-		if (Cast<APlayableCharacter>(OtherActor))
+		// í”¼ë‹ˆì…” íŒì •: íƒ€ê²Ÿì´ ìŠ¤í„´ ì¤‘ì´ë©´ í”¼ë‹ˆì…” ì• ë‹ˆë©”ì´ì…˜ + í° ë°ë¯¸ì§€
+		if (Target->GetbIsStunned())
 		{
-			Cast<APlayableCharacter>(OtherActor)->TakeDamage(20.0f);
+			bIsAttacking = false;
+			SetbCanMove(false);
+			Target->EndStun();
+			if (ExecutionMontage)
+			{
+				UAnimInstance* AnimInst = GetMesh()->GetAnimInstance();
+				if (AnimInst)
+				{
+					AnimInst->Montage_Play(ExecutionMontage, 1.0f);
+					FOnMontageEnded EndDelegate;
+					EndDelegate.BindUObject(this, &APlayableCharacter::OnExecutionMontageEnded);
+					AnimInst->Montage_SetEndDelegate(EndDelegate, ExecutionMontage);
+				}
+			}
+			Target->TakeDamage(60.0f);
+			return;
 		}
 
+		// íŒ¨ë§ ì‹¤íŒ¨: ìœˆë„ìš° ë§Œë£Œ í›„ ì• ë‹ˆë©”ì´ì…˜ ì¤‘ í”¼ê²© â†’ í”¼í•´ ì¦ê°€
+		if (Target->GetbParryFailed())
+		{
+			bIsAttacking = false;
+			Target->TakeDamage(40.0f);
+			return;
+		}
+
+		// ì¼ë°˜ ê³µê²©
+		bIsAttacking = false;
+		Target->TakeDamage(20.0f);
 
 		GG_LOG(LogTemp, Warning, TEXT("Hand collision detected with: %s"), *OtherActor->GetName());
 		GG_LOG(LogTemp, Warning, TEXT("Count: %d"), ++Count);
@@ -161,11 +182,12 @@ void APlayableCharacter::OnHandCollision(UPrimitiveComponent* OverlappedComponen
 }
 
 
-void APlayableCharacter::TakeDamage(float damage)
+void APlayableCharacter::TakeDamage(float Damage)
 {
 	//GG_LOG(LogGGNetwork, Log, TEXT("TakeDamage"));
 
-	Stat->ApplyDamage(damage);
+	if (!Stat) return;
+	Stat->ApplyDamage(Damage);
 
 }
 
@@ -196,7 +218,7 @@ void APlayableCharacter::OnRep_SetSkinAndEmotion()
 
 	GG_LOG(LogTemp, Log, TEXT("Apply"));
 
-	//Å¬¶óÀÌ¾ğÆ®¿¡¼­ Àû¿ë
+	//í´ë¼ì´ì–¸íŠ¸ì—ì„œ ì‹¤í–‰
 	GetMesh()->SetSkeletalMeshAsset(PlayerMesh);
 
 	GetMesh()->SetMaterial(1, PlayerEmo);
@@ -206,11 +228,11 @@ void APlayableCharacter::OnRep_SetSkinAndEmotion()
 
 void APlayableCharacter::Server_LoadAndApplySavedData_Implementation(USkeletalMesh* NewSkin, UMaterialInstance* NewEmotion)
 {
-	//¼­¹ö¿¡¼­ º¯°æ		º¯°æÇßÀ¸´Ï °ª Àü´ŞÇÏ°í Å¬¶óÀÌ¾ğÆ®¿¡¼­ OnRep ½ÇÇàµÉ²¨ÀÓ(Å¬¶óÀÌ¾ğÆ®¿¡¼­ Àû¿ë)
+	//ì„œë²„ì—ì„œ ì‹¤í–‰ â†’ ë³€ìˆ˜ ë³€ê²½, í´ë¼ì´ì–¸íŠ¸ OnRep í˜¸ì¶œë¨
 	PlayerMesh = NewSkin;
 	PlayerEmo = NewEmotion;
 
-	//¼­¹ö¿¡¼­ Àû¿ë
+	//ì„œë²„ì—ì„œ ì ìš©
 	OnRep_SetSkinAndEmotion();
 }
 
@@ -233,7 +255,7 @@ void APlayableCharacter::Tick(float DeltaTime)
 	
 	FRotator LookAtRotation = UKismetMathLibrary::FindLookAtRotation(StartLocation, TargetLocation);
 
-	// È¸Àü Àû¿ë
+	// íšŒì „ ì ìš©
 	HPWidget->SetWorldRotation(LookAtRotation);
 }
 
@@ -274,6 +296,8 @@ void APlayableCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 
 		EnhancedInputComponent->BindAction(RightDodgeAction, ETriggerEvent::Started, this, &APlayableCharacter::RightDodge);
 		EnhancedInputComponent->BindAction(RightDodgeAction, ETriggerEvent::Completed, this, &APlayableCharacter::RightDodge);
+
+		EnhancedInputComponent->BindAction(ParryAction, ETriggerEvent::Started, this, &APlayableCharacter::Parry);
 	}
 	else
 	{
@@ -326,18 +350,18 @@ void APlayableCharacter::Shoot()
 
 void APlayableCharacter::LeftPunch()
 {
+	if (bIsStunned) return;
 	Server_LeftPunch();
 }
 void APlayableCharacter::Server_LeftPunch_Implementation()
 {
+	if (bIsStunned) return;
 	Multicast_LeftPunch();
 }
-bool APlayableCharacter::Server_LeftPunch_Validate()
-{
-	return true;
-}
+
 void APlayableCharacter::Multicast_LeftPunch_Implementation()
 {
+	if (bIsStunned) return;
 
 	SetbCanMove(false);
 
@@ -346,7 +370,7 @@ void APlayableCharacter::Multicast_LeftPunch_Implementation()
 		if (!bIsLeftPunch)
 		{
 			bIsAttacking = true;
-			PlayAnimMontage(LeftPunchMontange, PunchAnimSpeed); // ¼­¹ö¿¡¼­ ¾Ö´Ï¸ŞÀÌ¼Ç Àç»ı
+			PlayAnimMontage(LeftPunchMontange, PunchAnimSpeed); // ë¬´ê¸° ì—†ì„ ë•Œ ì• ë‹ˆë©”ì´ì…˜ ì¬ìƒ
 			bIsLeftPunch = true;
 
 			UE_LOG(LogTemp, Warning, TEXT("LeftPunch"));
@@ -355,25 +379,23 @@ void APlayableCharacter::Multicast_LeftPunch_Implementation()
 
 
 }
-bool APlayableCharacter::Multicast_LeftPunch_Validate()
-{
-	return true;
-}
+
 
 void APlayableCharacter::RightPunch()
 {
+	if (bIsStunned) return;
 	Server_RightPunch();
 }
 void APlayableCharacter::Server_RightPunch_Implementation()
 {
+	if (bIsStunned) return;
 	Multicast_RightPunch();
 }
-bool APlayableCharacter::Server_RightPunch_Validate()
-{
-	return true;
-}
+
 void APlayableCharacter::Multicast_RightPunch_Implementation()
 {
+	if (bIsStunned) return;
+
 	SetbCanMove(false);
 
 	if (!bIsRightPunch) {
@@ -381,10 +403,6 @@ void APlayableCharacter::Multicast_RightPunch_Implementation()
 		PlayAnimMontage(RightPunchMontange, PunchAnimSpeed);
 		bIsRightPunch = true;
 	}
-}
-bool APlayableCharacter::Multicast_RightPunch_Validate()
-{
-	return true;
 }
 
 void APlayableCharacter::MoveCameraToRangedWeaponPosition()
@@ -413,10 +431,7 @@ void APlayableCharacter::Server_LeftDodge_Implementation()
 {
 	Multicast_LeftDodge();
 }
-bool APlayableCharacter::Server_LeftDodge_Validate()
-{
-	return true;
-}
+
 
 
 void APlayableCharacter::Multicast_LeftDodge_Implementation()
@@ -427,17 +442,14 @@ void APlayableCharacter::Multicast_LeftDodge_Implementation()
 		SetbCanMove(true);
 	}
 
-	else		//dodge »óÅÂ
+	else		//dodge ì‹œì‘
 	{
 		bIsLeftDodge = true;
 
 		SetbCanMove(false);
 	}
 }
-bool APlayableCharacter::Multicast_LeftDodge_Validate()
-{
-	return true;
-}
+
 
 
 void APlayableCharacter::RightDodge()
@@ -449,10 +461,7 @@ void APlayableCharacter::Server_RightDodge_Implementation()
 {
 	Multicast_RightDodge();
 }
-bool APlayableCharacter::Server_RightDodge_Validate()
-{
-	return true;
-}
+
 
 
 void APlayableCharacter::Multicast_RightDodge_Implementation()
@@ -469,17 +478,161 @@ void APlayableCharacter::Multicast_RightDodge_Implementation()
 		SetbCanMove(false);
 	}
 }
-bool APlayableCharacter::Multicast_RightDodge_Validate()
+
+
+void APlayableCharacter::Parry()
 {
-	return true;
+	if (bIsStunned || bIsParrying) return;
+
+	// í´ë¼ì´ì–¸íŠ¸ ì˜ˆì¸¡í•˜ê¸°(ë¡œì»¬ í”Œë ˆì´ì–´ì¸ ê²½ìš° ì„œë²„ ì‘ë‹µì„ ê¸°ë‹¤ë¦¬ì§€ ì•Šê³  ì¦‰ì‹œ íŒ¨ë§ ì‹œì‘)
+	if (IsLocallyControlled())
+	{
+		Local_ParryStart();
+	}
+	// ì„œë²„ì— íŒ¨ë§ ì‚¬ì‹¤ ì•Œë¦¼
+	Server_Parry(GetWorld()->GetTimeSeconds());
 }
 
-void APlayableCharacter::SetHasWeapon(bool ISHASWEAPON)
+void APlayableCharacter::Local_ParryStart()
 {
-	bHasWeapon = ISHASWEAPON;
+	if (bIsStunned) return;
+
+	bIsParrying = true;
+	SetbCanMove(false);
+
+	// íŒ¨ë§ ì• ë‹ˆë©”ì´ì…˜ ì¬ìƒ
+	if (ParryMontage)	
+	{
+		UAnimInstance* AnimInst = GetMesh()->GetAnimInstance();
+		if (AnimInst)
+		{
+			if (!AnimInst->Montage_IsPlaying(ParryMontage))
+			{
+				AnimInst->Montage_Play(ParryMontage, 1.0f);
+				FOnMontageEnded EndDelegate;
+				EndDelegate.BindUObject(this, &APlayableCharacter::OnParryMontageEnded);
+				AnimInst->Montage_SetEndDelegate(EndDelegate, ParryMontage);
+			}
+		}
+	}
+
+	GetWorldTimerManager().SetTimer(
+		ParryWindowTimerHandle,
+		this,
+		&APlayableCharacter::EndParryWindow,
+		ParryWindowDuration,
+		false
+	);
+}
+
+void APlayableCharacter::Server_Parry_Implementation(float ClientTimestamp)
+{
+	// ì„œë²„ì—ì„œë„ ì• ë‹ˆë©”ì´ì…˜ ë¡œì§ì„ ì‹¤í–‰í•˜ì—¬ ì„œë²„ í™”ë©´ ë° ë‹¤ë¥¸ í´ë¼ì´ì–¸íŠ¸ ë™ê¸°í™” ë³´ì¥
+	Local_ParryStart();
+}
+
+void APlayableCharacter::OnRep_bIsParrying()
+{
+	if (bIsParrying)
+	{
+		// ë¡œì»¬ í”Œë ˆì´ì–´(í´ë¼ì´ì–¸íŠ¸)ëŠ” ì´ë¯¸ ì˜ˆì¸¡í•´ì„œ ì‹¤í–‰í–ˆìœ¼ë¯€ë¡œ Proxyë“¤ë§Œ ì‹¤í–‰
+		if (!IsLocallyControlled())
+		{
+			Local_ParryStart();
+		}
+	}
+}
+
+void APlayableCharacter::OnRep_bParryFailed()
+{
+	// íŒ¨ë§ ì‹¤íŒ¨ì— ëŒ€í•œ ì‹œê°ì /ì‚¬ìš´ë“œ í”¼ë“œë°± ì²˜ë¦¬
+}
+
+void APlayableCharacter::EndParryWindow()
+{
+	bIsParrying = false;
+	bParryFailed = true;	//íŒ¨ë§ ìœˆë„ìš° ë§Œë£Œ, í”¼í•´ ì·¨ì•½ ìƒíƒœ ì§„ì…
+}
+
+void APlayableCharacter::OnParryMontageEnded(UAnimMontage* Montage, bool bInterrupted)
+{
+	// ìƒˆ íŒ¨ë§ ì‹œì‘ìœ¼ë¡œ ëª½íƒ€ì£¼ê°€ ì¤‘ë‹¨ëœ ê²½ìš° ìƒíƒœ ìœ ì§€
+	if (bInterrupted && bIsParrying && !bIsStunned)
+	{
+		return;
+	}
+
+	bIsParrying = false;
+	bParryFailed = false;
+	if (!bIsStunned)
+	{
+		SetbCanMove(true);
+	}
+	GetWorldTimerManager().ClearTimer(ParryWindowTimerHandle);
+}
+
+
+void APlayableCharacter::ApplyStun()
+{
+	if (!HasAuthority()) return;
+
+	Multicast_ApplyStun();
+
+	GetWorldTimerManager().SetTimer(
+		StunTimerHandle,
+		this,
+		&APlayableCharacter::EndStun,
+		StunDuration,
+		false
+	);
+
+}
+
+void APlayableCharacter::Multicast_ApplyStun_Implementation()
+{
+	bIsStunned = true;
+	SetbCanMove(false);
+	bIsAttacking = false;
+	bIshitted = false;
+
+	if (StunMontage)
+	{
+		PlayAnimMontage(StunMontage, 1.0f);
+	}
+}
+
+void APlayableCharacter::EndStun()
+{
+	GetWorldTimerManager().ClearTimer(StunTimerHandle);
+	GetWorldTimerManager().ClearTimer(StunLogTimerHandle);
+	Multicast_EndStun();
+}
+
+void APlayableCharacter::Multicast_EndStun_Implementation()
+{
+	bIsStunned = false;
+	bIsParrying = false;
+	bParryFailed = false;
+	bIsLeftPunch = false;
+	bIsRightPunch = false;
+	bIsAttacking = false;
+	ParryGauge = 0.0f;
+	GetWorldTimerManager().ClearTimer(ParryWindowTimerHandle);
+	SetbCanMove(true);
+}
+
+void APlayableCharacter::OnExecutionMontageEnded(UAnimMontage* Montage, bool bInterrupted)
+{
+	bIsAttacking = false;
+	SetbCanMove(true);
+}
+
+void APlayableCharacter::SetHasWeapon(bool bNewHasWeapon)
+{
+	bHasWeapon = bNewHasWeapon;
 	
-	//¿ìÅ¬¸¯ InputMappingContext º¯°æ
-	if (bHasWeapon)		//¹«±â¸¦ °¡Áö°í ÀÖÀ¸¸é 
+	//ë¬´ê¸° InputMappingContext ì—…ë°ì´íŠ¸
+	if (bHasWeapon)		//ë¬´ê¸°ë¥¼ ë“¤ì—ˆì„ ë•Œ 
 	{
 		if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
 		{
@@ -490,7 +643,7 @@ void APlayableCharacter::SetHasWeapon(bool ISHASWEAPON)
 			}
 		}
 	}
-	else					//¹«±â ¾øÀ¸¸é
+	else					//ë¬´ê¸° ì—†ì„ ë•Œ
 	{
 		if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
 		{
